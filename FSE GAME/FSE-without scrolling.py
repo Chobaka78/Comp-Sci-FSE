@@ -22,11 +22,6 @@ WHITE=(255,255,255)    ## basic colors that doesnt change in capital
 BLACK=(0,0,0)
 YELLOW=(255,255,0)
 
-X=0
-Y=1
-VY=2
-ONGROUND=3
-
 firstBack = image.load("images/firstBack.png")
 LEVEL1back=image.load("images/Level1Back.png")
 backgroundRect=Rect(0,0,1080,720)
@@ -69,59 +64,39 @@ def menu():
                 
                    
         display.flip()
-        
-def moveBATMAN(BATMAN):
-    keys = key.get_pressed()
+
+def moveBatman():
+    ''' movebatman controls the location of batman as well as adjusts the move and frame
+        variables to ensure the right picture is drawn.
+    '''
     global move, frame
+    keys = key.get_pressed()
     newMove = -1        
-
-    if keys[K_LEFT] and BATMAN[X] > 10:
-        newMove = LEFT
-
-        BATMAN[X] -= 10
-    if keys[K_RIGHT] and BATMAN[X] < 3920:
+    if keys[K_RIGHT]:
         newMove = RIGHT
+        BATMAN[0] += 5
 
-        BATMAN[X] += 10
-    if keys[K_SPACE] and BATMAN[ONGROUND]:
-        BATMAN[VY] = -10
-        BATMAN[ONGROUND]=False
+    elif keys[K_LEFT]:
+        newMove = LEFT
+        BATMAN[0] -= 5
+    elif keys[K_SPACE] and BATMAN[1] >= 635:
+        newMove = UP
+        BATMAN[1] -= 10
 
+    else:
+        frame = 0
+        BATMAN[1]= 675
+
+    #print(move,newMove)
 
     if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
-        frame = frame + 0.4 # adding 0.2 allows us to slow down the animation
+        frame = frame + 0.3# adding 0.2 allows us to slow down the animation
         if frame >= len(pics[move]):
             frame = 1
     elif newMove != -1:     # a move was selected
         move = newMove      # make that our current move
         frame = 1
         print("hello")
-
-    # BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
-    # if BATMAN[Y] >= 450:
-    #    BATMAN[Y] = 450
-    #    BATMAN[VY] = 0
-    #    BATMAN[ONGROUND]=True
-    # BATMAN[VY]+=.7     # add current speed to Y
-
-
-
-    # def checkCollide(BATMAN,plats):
-    # rec = Rect(BATMAN[X],BATMAN[Y],20,31)
-
-    # #draw.rect(screen,(0,0,255),rec.move(0,-BATMAN[VY]))
-    # #display.flip()
-    # for p in plats:
-    #    if rec.colliderect(p):
-    #            #falling down 
-    #        if BATMAN[VY]>0 and rec.move(0,-BATMAN[VY]).colliderect(p)==False:
-
-
-               
-    #            BATMAN[ONGROUND]=True
-    #            BATMAN[VY] = 0
-    #            BATMAN[Y] = p.y - 31 #size of player
-                
 
 def makeMove(name,start,end):
     ''' This returns a list of pictures. They must be in the folder "name"
@@ -134,12 +109,9 @@ def makeMove(name,start,end):
         
     return move
 
-def drawScene(screen,BATMAN):
-    """ draws the current state of the game """
-
-    offset = 10 - BATMAN[X]
-    screen.blit(LEVEL1back,(offset,0))
-        ### This will be later moved into a function#############
+def drawScene():
+    screen.blit(LEVEL1back,backgroundRect)
+    ### This will be later moved into a function#############
     draw.rect(screen,BLUE,(5,5,300,25),0)
     draw.rect(screen,RED,(10,10,290,15),0)
     draw.rect(screen,BLUE,(5,35,225,20),0)
@@ -148,22 +120,12 @@ def drawScene(screen,BATMAN):
     for i in range (len(Gems)):
         draw.rect(screen,BLACK,Gems[i],2)
     ######################################################
-    
-    #move all platforms in oposti direction of the player
-##    for pl in plats:
-##        p = pl.move(offset,0) #move horizentally only
-##        #print(p)
-##        draw.rect(screen,(111,111,111),p)
 
     pic = pics[move][int(frame)]
-    screen.blit(pic, (150,BATMAN[Y]))
-
+    screen.blit(pic,(BATMAN[0]-pic.get_width()//2,BATMAN[1]-pic.get_height()//2))
+    print(move,frame)           
     display.flip()
 
-'''
-    The guy's x position is where he is in the "world" we then draw the map
-    at a negative position to compensate.
-'''
 
 def simpleGame():
     mixer.music.stop()
@@ -178,13 +140,12 @@ def simpleGame():
 
         mx, my = mouse.get_pos()
         print(mx,my)
-
+        mb = mouse.get_pressed()
         keys = key.get_pressed()
 
-        moveBATMAN(BATMAN)        
-        #checkCollide(BATMAN,plats)
-        drawScene(screen, BATMAN)
-        myClock.tick(60)
+        moveBatman()          
+        drawScene()
+        myClock.tick(50)
         display.flip()
     
     return "menu"
@@ -199,9 +160,13 @@ pics.append(makeMove("batman",0,9))      # RIGHT
 pics.append(makeMove("batman",10,18))    # LEFT
 pics.append(makeMove("batman",20,24))
 
+print(len(pics[0]),len(pics[1]),len(pics[2]))
+
 
 frame=0     # current frame within the move
 move=0      # current move being performed (right, down, up, left)
+
+BATMAN=[10,675]  #batman position
 
 def instructions():
     mixer.music.stop()
@@ -233,6 +198,7 @@ def credit():
 
         display.flip()
     return "menu"
+    
 
 def story():
     mixer.music.stop()
@@ -252,18 +218,6 @@ def story():
         display.flip()
     return "menu"
 
-
-X=0
-Y=1
-VY=2
-ONGROUND=3
-SCREENX = 4
-
-plats=[Rect(280,430,60,10),Rect(310,450,60,10)]
-
-BATMAN = [250,650,0,True]  #ground or platform
-
-
 running = True
 x,y = 0,0
 OUTLINE = (150,50,30)
@@ -281,4 +235,3 @@ while page != "exit":
         page = credit()    
     
 quit()
-
