@@ -248,9 +248,4 @@ while page != "exit":
         page = credit()    
     
 quit()
-
-
 ### This is to test if Github works right
-## This is test number 2
-### This is test number 3
-#$$#$#frgjg
