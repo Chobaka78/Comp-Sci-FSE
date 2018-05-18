@@ -218,19 +218,6 @@ def story():
         display.flip()
     return "menu"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 running = True
 x,y = 0,0
 OUTLINE = (150,50,30)
@@ -248,4 +235,3 @@ while page != "exit":
         page = credit()    
     
 quit()
-### This is to test if Github works right
