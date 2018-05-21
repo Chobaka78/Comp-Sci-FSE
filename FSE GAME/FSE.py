@@ -74,7 +74,6 @@ def moveBATMAN(BATMAN):
     keys = key.get_pressed()
     global move, frame
     newMove = -1        
-
     if keys[K_LEFT] and BATMAN[X] > 10:
         newMove = LEFT
         BATMAN[X] -= 10
@@ -103,7 +102,6 @@ def moveBATMAN(BATMAN):
         newMove = Punch
 
     print(BATMAN[X],BATMAN[Y])
-
 
     if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
         frame = frame + 0.4 # adding 0.2 allows us to slow down the animation
