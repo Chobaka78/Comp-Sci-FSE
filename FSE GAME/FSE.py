@@ -77,15 +77,21 @@ def moveBATMAN(BATMAN):
 
     if keys[K_LEFT] and BATMAN[X] > 10:
         newMove = LEFT
-
         BATMAN[X] -= 10
+
     if keys[K_RIGHT] and BATMAN[X] < 3920:
         newMove = RIGHT
-
         BATMAN[X] += 10
+        
     if keys[K_SPACE] and BATMAN[ONGROUND]:
+        newMove = Jump
         BATMAN[VY] = -10
         BATMAN[ONGROUND]=False
+
+    if keys[K_b]:
+        newMove = Punch
+
+    print(BATMAN[X],BATMAN[Y])
 
 
     if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
@@ -95,7 +101,6 @@ def moveBATMAN(BATMAN):
     elif newMove != -1:     # a move was selected
         move = newMove      # make that our current move
         frame = 1
-        print("hello")
 
     # BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
     # if BATMAN[Y] >= 450:
@@ -130,13 +135,11 @@ def makeMove(name,start,end):
     '''
     move = []
     for i in range(start,end+1):
-        move.append(image.load("%s/%s%03d.png" % (name,name,i)))
-        
+        move.append(image.load("%s/%s%03d.png" % (name,name,i)))        
     return move
 
 def drawScene(screen,BATMAN):
     """ draws the current state of the game """
-
     offset = 10 - BATMAN[X]
     screen.blit(LEVEL1back,(offset,0))
         ### This will be later moved into a function#############
@@ -149,11 +152,11 @@ def drawScene(screen,BATMAN):
         draw.rect(screen,BLACK,Gems[i],2)
     ######################################################
     
-    #move all platforms in oposti direction of the player
-##    for pl in plats:
-##        p = pl.move(offset,0) #move horizentally only
-##        #print(p)
-##        draw.rect(screen,(111,111,111),p)
+#     move all platforms in oposti direction of the player
+# #    for pl in plats:
+# #        p = pl.move(offset,0) #move horizentally only
+# #        #print(p)
+# #        draw.rect(screen,(111,111,111),p)
 
     pic = pics[move][int(frame)]
     screen.blit(pic, (150,BATMAN[Y]))
@@ -192,12 +195,14 @@ def simpleGame():
 
 RIGHT = 0 # These are just the indices of the moves
 LEFT = 1
-UP = 2
+Jump = 2
+Punch = 3
 
 pics = [] #2d list
-pics.append(makeMove("batman",0,9))      # RIGHT
-pics.append(makeMove("batman",10,18))    # LEFT
-pics.append(makeMove("batman",20,24))
+pics.append(makeMove("batman",0,9))# RIGHT
+pics.append(makeMove("batman",10,18))# LEFT
+pics.append(makeMove("batman",20,24))# Jumping
+pics.append(makeMove("batman",25,35))# Punching
 
 
 frame=0     # current frame within the move
