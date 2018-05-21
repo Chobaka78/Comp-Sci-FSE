@@ -22,14 +22,16 @@ WHITE=(255,255,255)    ## basic colors that doesnt change in capital
 BLACK=(0,0,0)
 YELLOW=(255,255,0)
 
-X=0
+X=0 
 Y=1
 VY=2
 ONGROUND=3
 
 firstBack = image.load("images/firstBack.png")
 LEVEL1back=image.load("images/Level1Back.png")
+cont_button = image.load("images/continue-button.png")
 backgroundRect=Rect(0,0,1080,720)
+buttonRect = Rect(940,10,130,50)
 display.set_caption("THE AVENGERS AND JUSTICE LEAGUE")  #naming the program
 
 def menu():
@@ -65,9 +67,7 @@ def menu():
                 if mb[0]==1:
                     return vals[i]
             else:
-                draw.rect(screen,YELLOW,buttons[i],2)
-                
-                   
+                draw.rect(screen,YELLOW,buttons[i],2)            
         display.flip()
         
 def moveBATMAN(BATMAN):
@@ -148,7 +148,8 @@ def drawScene(screen,BATMAN):
     at a negative position to compensate.
 '''
 
-def simpleGame():
+def Level1():
+    BATMAN = [10,650,0,True,10]  # Batmans position in the game
     mixer.music.stop()
     mixer.music.load("Music/Game music 2.mp3")
     mixer.music.play(-1)
@@ -173,18 +174,16 @@ def simpleGame():
     
     return "menu"
 
-
 RIGHT = 0 # These are just the indices of the moves
 LEFT = 1
 Jump = 2
 Punch = 3
 
 pics = [] #2d list
-pics.append(makeMove("batman",0,9))# RIGHT
-pics.append(makeMove("batman",10,18))# LEFT
-pics.append(makeMove("batman",20,24))# Jumping
-pics.append(makeMove("batman",25,35))# Punching
-
+pics.append(makeMove("batman",0,16))# RIGHT
+pics.append(makeMove("batman",26,34))# LEFT
+pics.append(makeMove("batman",35,38))# Jumping
+pics.append(makeMove("batman",39,49))# Punching
 
 frame=0     # current frame within the move
 move=0      # current move being performed (right, down, up, left)
@@ -193,15 +192,30 @@ def instructions():
     mixer.music.stop()
     mixer.music.load("Music/Game music.mp3")
     mixer.music.play(-1)
-    running = True
+
     inst = image.load("images/instructions.png")
     inst = transform.smoothscale(inst, screen.get_size())
     screen.blit(inst,(0,0))
+    running = True
+    
     while running:
         for evnt in event.get():          
             if evnt.type == QUIT:
                 running = False
         if key.get_pressed()[27]: running = False
+
+        mx,my = mouse.get_pos()
+        mb = mouse.get_pressed()
+
+        if buttonRect.collidepoint(mx,my):
+            draw.rect(screen,BLUE,buttonRect,2)
+        else:
+            draw.rect(screen,WHITE,(940,10,150,50))
+
+        if mb[0] == 1:
+            return "game"
+
+        screen.blit(cont_button,(940,10)) # blitting the button
 
         display.flip()
     return "menu"
@@ -210,6 +224,7 @@ def credit():
     running = True
     cred = image.load("images/credits.png")
     cred = transform.smoothscale(cred, screen.get_size())
+    buttonRect1 = Rect(940,660,130,50)
     screen.blit(cred,(0,0))
     while running:
         for evnt in event.get():          
@@ -217,6 +232,17 @@ def credit():
                 running = False
         if key.get_pressed()[27]: running = False
 
+        mx,my = mouse.get_pos()
+        mb = mouse.get_pressed()
+
+        if buttonRect1.collidepoint(mx,my):
+            draw.rect(screen,BLUE,buttonRect1,2)
+        else:
+            draw.rect(screen,WHITE,buttonRect1)
+        if mb[0] == 1:
+            return "game"
+
+        screen.blit(cont_button,(940,660)) # blitting the button
         display.flip()
     return "menu"
 
@@ -224,6 +250,7 @@ def story():
     mixer.music.stop()
     mixer.music.load("Music/StoryMusic.mp3")
     mixer.music.play(-1)
+    buttonRect2 = Rect(940,0,130,50)
     running = True
     story = image.load("images/story.png")
     storyLine = image.load("images/Storyline.png")
@@ -235,9 +262,20 @@ def story():
             if evnt.type == QUIT:
                 running = False
         if key.get_pressed()[27]: running = False
+
+        mx,my = mouse.get_pos()
+        mb = mouse.get_pressed()
+
+        if buttonRect2.collidepoint(mx,my):
+            draw.rect(screen,WHITE,buttonRect2,2)
+        else:
+            draw.rect(screen,BLACK,buttonRect2)
+        if mb[0] == 1:
+            return "game"
+
+        screen.blit(cont_button,(940,0)) # blitting the button
         display.flip()
     return "menu"
-
 
 X=0
 Y=1
@@ -245,12 +283,7 @@ VY=2
 ONGROUND=3
 SCREENX = 4
 
-plats=[Rect(280,430,60,10),Rect(310,450,60,10)]
-
-BATMAN = [10,650,0,True,10]  #ground or platform
-
-
-
+BATMAN = [10,650,0,True,10]  # Batmans position in the game
 running = True
 x,y = 0,0
 OUTLINE = (150,50,30)
@@ -259,7 +292,7 @@ while page != "exit":
     if page == "menu":
         page = menu()
     if page == "game":
-        page = simpleGame()    
+        page = Level1()    
     if page == "instructions":
         page = instructions()    
     if page == "story":
