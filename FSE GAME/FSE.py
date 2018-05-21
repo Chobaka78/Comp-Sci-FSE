@@ -78,15 +78,26 @@ def moveBATMAN(BATMAN):
     if keys[K_LEFT] and BATMAN[X] > 10:
         newMove = LEFT
         BATMAN[X] -= 10
+        if BATMAN[SCREENX] > 10:
+            BATMAN[SCREENX] -= 10
 
-    if keys[K_RIGHT] and BATMAN[X] < 3920:
+    if keys[K_RIGHT] and BATMAN[X] < 2090:
         newMove = RIGHT
         BATMAN[X] += 10
-        
+        if BATMAN[SCREENX] < 1000:
+            BATMAN[SCREENX] += 10
+
     if keys[K_SPACE] and BATMAN[ONGROUND]:
         newMove = Jump
         BATMAN[VY] = -10
         BATMAN[ONGROUND]=False
+
+    BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
+    if BATMAN[Y] >= 650:
+       BATMAN[Y] = 650
+       BATMAN[VY] = 0
+       BATMAN[ONGROUND]=True
+    BATMAN[VY]+=.7     # add current speed to Y
 
     if keys[K_b]:
         newMove = Punch
@@ -101,33 +112,7 @@ def moveBATMAN(BATMAN):
     elif newMove != -1:     # a move was selected
         move = newMove      # make that our current move
         frame = 1
-
-    # BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
-    # if BATMAN[Y] >= 450:
-    #    BATMAN[Y] = 450
-    #    BATMAN[VY] = 0
-    #    BATMAN[ONGROUND]=True
-    # BATMAN[VY]+=.7     # add current speed to Y
-
-
-
-    # def checkCollide(BATMAN,plats):
-    # rec = Rect(BATMAN[X],BATMAN[Y],20,31)
-
-    # #draw.rect(screen,(0,0,255),rec.move(0,-BATMAN[VY]))
-    # #display.flip()
-    # for p in plats:
-    #    if rec.colliderect(p):
-    #            #falling down 
-    #        if BATMAN[VY]>0 and rec.move(0,-BATMAN[VY]).colliderect(p)==False:
-
-
-               
-    #            BATMAN[ONGROUND]=True
-    #            BATMAN[VY] = 0
-    #            BATMAN[Y] = p.y - 31 #size of player
                 
-
 def makeMove(name,start,end):
     ''' This returns a list of pictures. They must be in the folder "name"
         and start with the name "name".
@@ -140,7 +125,7 @@ def makeMove(name,start,end):
 
 def drawScene(screen,BATMAN):
     """ draws the current state of the game """
-    offset = 10 - BATMAN[X]
+    offset = BATMAN[SCREENX] - BATMAN[X]
     screen.blit(LEVEL1back,(offset,0))
         ### This will be later moved into a function#############
     draw.rect(screen,BLUE,(5,5,300,25),0)
@@ -152,14 +137,9 @@ def drawScene(screen,BATMAN):
         draw.rect(screen,BLACK,Gems[i],2)
     ######################################################
     
-#     move all platforms in oposti direction of the player
-# #    for pl in plats:
-# #        p = pl.move(offset,0) #move horizentally only
-# #        #print(p)
-# #        draw.rect(screen,(111,111,111),p)
 
     pic = pics[move][int(frame)]
-    screen.blit(pic, (150,BATMAN[Y]))
+    screen.blit(pic, (BATMAN[SCREENX],BATMAN[Y]))
 
     display.flip()
 
@@ -186,8 +166,9 @@ def simpleGame():
 
         moveBATMAN(BATMAN)        
         #checkCollide(BATMAN,plats)
-        drawScene(screen, BATMAN)
-        myClock.tick(60)
+        drawScene(screen,BATMAN)
+        display.update()
+        myClock.tick(25)
         display.flip()
     
     return "menu"
@@ -266,7 +247,8 @@ SCREENX = 4
 
 plats=[Rect(280,430,60,10),Rect(310,450,60,10)]
 
-BATMAN = [250,650,0,True]  #ground or platform
+BATMAN = [10,650,0,True,10]  #ground or platform
+
 
 
 running = True
