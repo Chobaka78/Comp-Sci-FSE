@@ -101,6 +101,9 @@ def moveBATMAN(BATMAN):
     if keys[K_b]:
         newMove = Punch
 
+    elif newMove == -1:
+        frame = 0
+
     print(BATMAN[X],BATMAN[Y])
 
     if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
