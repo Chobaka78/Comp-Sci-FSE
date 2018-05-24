@@ -33,6 +33,10 @@ cont_button = image.load("images/continue-button.png")
 backgroundRect=Rect(0,0,1080,720)
 buttonRect = Rect(940,10,130,50)
 display.set_caption("THE AVENGERS AND JUSTICE LEAGUE")  #naming the program
+## Global varaiables
+global bullets, rapid
+bullets = []
+rapid = 10
 
 def menu():
     mixer.music.load("Music/Game music 1.mp3")
@@ -54,7 +58,7 @@ def menu():
         keys = key.get_pressed()
 
         screen.blit(firstBack,backgroundRect)
-        print(mpos)
+        # print(mpos)
         for i in range(len(buttons)):
             title=arialFont.render(vals2[i],True,BLUE)
             draw.rect(screen,WHITE,buttons[i])
@@ -86,10 +90,20 @@ def moveBATMAN(BATMAN):
         if BATMAN[SCREENX] < 1000:
             BATMAN[SCREENX] += 10
 
-    if keys[K_SPACE] and BATMAN[ONGROUND]:
+    if keys[K_UP] and BATMAN[ONGROUND]:
         newMove = Jump
         BATMAN[VY] = -10
         BATMAN[ONGROUND]=False
+
+    if keys[K_SPACE]:
+        rapid = 10
+        if rapid<10:
+            rapid+=1
+        if keys[32] and rapid==10:
+            rapid = 0
+            VX = 5
+            VY1 = 0
+            bullets.append([BATMAN[X],BATMAN[Y]+20,VX,VY1])
 
     BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
     if BATMAN[Y] >= 650:
@@ -104,7 +118,10 @@ def moveBATMAN(BATMAN):
     elif newMove == -1:
         frame = 0
 
-    print(BATMAN[X],BATMAN[Y])
+    # print(BATMAN[X],BATMAN[Y])
+
+# def checkcollide(BATMAN,plats):
+
 
     if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
         frame = frame + 0.4 # adding 0.2 allows us to slow down the animation
@@ -125,6 +142,7 @@ def makeMove(name,start,end):
     return move
 
 def drawScene(screen,BATMAN):
+    bullet = image.load("batman/bullet.png")
     """ draws the current state of the game """
     offset = BATMAN[SCREENX] - BATMAN[X]
     screen.blit(LEVEL1back,(offset,0))
@@ -136,6 +154,16 @@ def drawScene(screen,BATMAN):
     Gems = [Rect(5+x*40,45+20,35,15) for x in range(5)]
     for i in range (len(Gems)):
         draw.rect(screen,BLACK,Gems[i],2)
+
+    for b in bullets[:]:
+        b[0]+=b[2]
+        b[1]+=b[3]
+
+        if max(b) > 1080 or min(b) < -0:
+            bullets.remove(b)
+
+    for b in bullets:
+        screen.blit(bullet,(int(b[0]),int(b[1])))
     ######################################################
     
 
@@ -304,3 +332,4 @@ while page != "exit":
 quit()
 
 # This is the change
+# My name is Usman and I like big cocks
