@@ -118,11 +118,6 @@ def moveBATMAN(BATMAN):
     elif newMove == -1:
         frame = 0
 
-    # print(BATMAN[X],BATMAN[Y])
-
-# def checkcollide(BATMAN,plats):
-
-
     if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
         frame = frame + 0.4 # adding 0.2 allows us to slow down the animation
         if frame >= len(pics[move]):
@@ -130,6 +125,34 @@ def moveBATMAN(BATMAN):
     elif newMove != -1:     # a move was selected
         move = newMove      # make that our current move
         frame = 1
+
+def enemyMove(ALIEN):
+    keys = key.get_pressed()
+    global move2, frame2
+    newMove2 = -1
+    print("ENmOVE",BATMAN[X],ALIEN[X])
+    if BATMAN[X] < ALIEN[X]:
+        newMove2 = LEFT
+        ALIEN[X] -= 5
+
+    if BATMAN[X] > ALIEN[X]:
+        newMove2 = RIGHT
+        ALIEN[X] += 5
+
+    if BATMAN[X] == ALIEN[X]:
+        newMove2 = -1
+        frame2 = 0
+        ALIEN[X] +=0
+
+
+    if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
+        frame2 = frame2 + 0.4 # adding 0.2 allows us to slow down the animation
+        if frame2 >= len(Epics[move2]):
+            frame2 = 1
+    elif newMove2 != -1:     # a move was selected
+        move2 = newMove2      # make that our current move
+        frame2 = 1
+    return BATMAN
                 
 def makeMove(name,start,end):
     ''' This returns a list of pictures. They must be in the folder "name"
@@ -140,6 +163,16 @@ def makeMove(name,start,end):
     for i in range(start,end+1):
         move.append(image.load("%s/%s%03d.png" % (name,name,i)))        
     return move
+
+def moveEnemy(name,start,end):
+    ''' This returns a list of pictures. They must be in the folder "name"
+        and start with the name "name".
+        start, end - The range of picture numbers 
+    '''
+    move2 = []
+    for i in range(start,end+1):
+        move2.append(image.load("%s/%s%03d.png" % (name,name,i)))        
+    return move2
 
 def drawScene(screen,BATMAN):
     bullet = image.load("batman/bullet.png")
@@ -170,6 +203,9 @@ def drawScene(screen,BATMAN):
     pic = pics[move][int(frame)]
     screen.blit(pic, (BATMAN[SCREENX],BATMAN[Y]))
 
+    pic2 = Epics[move2][int(frame2)]
+    screen.blit(pic2, (ALIEN[X],ALIEN[Y]))
+
     display.flip()
 
 '''
@@ -194,8 +230,9 @@ def Level1():
 
         keys = key.get_pressed()
 
-        moveBATMAN(BATMAN)        
+        moveBATMAN(BATMAN)       
         #checkCollide(BATMAN,plats)
+        BATMAN=enemyMove(ALIEN) 
         drawScene(screen,BATMAN)
         display.update()
         myClock.tick(25)
@@ -214,9 +251,14 @@ pics.append(makeMove("batman",26,34))# LEFT
 pics.append(makeMove("batman",35,38))# Jumping
 pics.append(makeMove("batman",39,49))# Punching
 
-frame=0     # current frame within the move
-move=0      # current move being performed (right, down, up, left)
+Epics=[]
+Epics.append(moveEnemy("alien",1,7))# RIGHT
+Epics.append(moveEnemy("alien",8,14))# LEFT
 
+frame = 0     # current frame within the move
+move = 0      # current move being performed (right, down, up, left)
+frame2 = 0
+move2 = 0
 def instructions():
     mixer.music.stop()
     mixer.music.load("Music/Game music.mp3")
@@ -313,6 +355,7 @@ ONGROUND=3
 SCREENX = 4
 
 BATMAN = [10,650,0,True,10]  # Batmans position in the game
+ALIEN = [250,650,0,True,10]  # Batmans position in the game
 running = True
 x,y = 0,0
 OUTLINE = (150,50,30)
