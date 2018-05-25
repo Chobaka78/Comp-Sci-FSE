@@ -128,7 +128,7 @@ def moveBATMAN(BATMAN):
 
 def enemyMove(ALIEN):
     keys = key.get_pressed()
-    global move2, frame2
+    global move2, frame2, HEALTH, heal
     newMove2 = -1
     print("ENmOVE",BATMAN[X],ALIEN[X])
     if BATMAN[X] < ALIEN[X]:
@@ -143,6 +143,9 @@ def enemyMove(ALIEN):
         newMove2 = -1
         frame2 = 0
         ALIEN[X] +=0
+        if HEALTH > 0:
+            HEALTH -=5
+            heal = heal * (HEALTH/100)
 
 
     if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
@@ -174,19 +177,22 @@ def moveEnemy(name,start,end):
         move2.append(image.load("%s/%s%03d.png" % (name,name,i)))        
     return move2
 
+def health():
+    draw.rect(screen,BLUE,(5,5,300,25),0)
+    draw.rect(screen,BLUE,(5,35,225,20),0)
+    draw.rect(screen,RED,(10,10,heal,15),0)
+    draw.rect(screen,LightBLue,(10,40,215,10),0)
+    Gems = [Rect(5+x*40,45+20,35,15) for x in range(5)]
+    for i in range (len(Gems)):
+        draw.rect(screen,BLACK,Gems[i],2)
+
+    print(heal,HEALTH)    
+
 def drawScene(screen,BATMAN):
     bullet = image.load("batman/bullet.png")
     """ draws the current state of the game """
     offset = BATMAN[SCREENX] - BATMAN[X]
     screen.blit(LEVEL1back,(offset,0))
-        ### This will be later moved into a function#############
-    draw.rect(screen,BLUE,(5,5,300,25),0)
-    draw.rect(screen,RED,(10,10,290,15),0)
-    draw.rect(screen,BLUE,(5,35,225,20),0)
-    draw.rect(screen,LightBLue,(10,40,215,10),0)
-    Gems = [Rect(5+x*40,45+20,35,15) for x in range(5)]
-    for i in range (len(Gems)):
-        draw.rect(screen,BLACK,Gems[i],2)
 
     for b in bullets[:]:
         b[0]+=b[2]
@@ -197,14 +203,14 @@ def drawScene(screen,BATMAN):
 
     for b in bullets:
         screen.blit(bullet,(int(b[0]),int(b[1])))
-    ######################################################
-    
 
     pic = pics[move][int(frame)]
     screen.blit(pic, (BATMAN[SCREENX],BATMAN[Y]))
 
     pic2 = Epics[move2][int(frame2)]
     screen.blit(pic2, (ALIEN[X],ALIEN[Y]))
+
+    health()
 
     display.flip()
 
@@ -353,7 +359,8 @@ Y=1
 VY=2
 ONGROUND=3
 SCREENX = 4
-
+HEALTH = 100
+heal = 290
 BATMAN = [10,650,0,True,10]  # Batmans position in the game
 ALIEN = [250,650,0,True,10]  # Batmans position in the game
 running = True
