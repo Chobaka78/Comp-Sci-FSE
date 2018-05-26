@@ -95,7 +95,7 @@ def health():
     for i in range (len(Gems)):
         draw.rect(screen,BLACK,Gems[i],2)
 
-    print(heal,HEALTH)  
+    # print(heal,HEALTH)  
 
 def enemyHealth():
     draw.rect(screen,RED,(ALIEN[X],ALIEN[Y]-20,35,5),0)
@@ -124,6 +124,16 @@ def Game():
 
         offset = BATMAN[SCREENX] - BATMAN[X]
         screen.blit(LEVEL1back,(offset,0))
+
+        pic = pics[move][int(frame)]
+        batRect = pic.get_rect()
+        batRect.x, batRect.y = BATMAN[SCREENX],BATMAN[Y]
+        screen.blit(pic, (BATMAN[SCREENX],BATMAN[Y]))
+
+        pic2 = Epics[move2][int(frame2)]
+        alienRect = pic2.get_rect()
+        alienRect.x, alienRect.y = ALIEN[X],ALIEN[Y]
+        screen.blit(pic2, (ALIEN[X],ALIEN[Y]))
 
         for evnt in event.get():          
             if evnt.type == QUIT:
@@ -154,7 +164,7 @@ def Game():
                 rapid+=1
             if keys[K_SPACE] and rapid==10:
                 rapid = 0
-                VX = 5
+                VX = 10
                 VY1 = 0
                 bullets.append([BATMAN[X],BATMAN[Y]+20,VX,VY1])
 
@@ -184,25 +194,19 @@ def Game():
             frame = 1
         ############################################
 
-        mx, my = mouse.get_pos()
-        print(mx,my) 
+        mx, my = mouse.get_pos() 
 
         ############ MOVING THE ENEMY ###################
         newMove2 = -1
-        print("ENmOVE",BATMAN[X],ALIEN[X])
         if BATMAN[X] < ALIEN[X] and ALIEN[X] > 10:
             newMove2 = LEFT
             ALIEN[X] -= 5
-            if ALIEN[SCREENX] > 10:
-                ALIEN[SCREENX] -= 10
 
         if BATMAN[X] > ALIEN[X] and ALIEN[X] < 2090:
             newMove2 = RIGHT
             ALIEN[X] += 5
-            if ALIEN[SCREENX] < 1000:
-                ALIEN[SCREENX] += 10
 
-        if BATMAN[X] == ALIEN[X] and BATMAN[Y] == ALIEN[Y]:
+        if batRect.colliderect(alienRect):
             newMove2 = -1
             frame2 = 0
             ALIEN[X] +=0
@@ -218,7 +222,7 @@ def Game():
             move2 = newMove2      # make that our current move
             frame2 = 1     
         ##########################################################
-        
+
         ############# MOVING THE BULLETS #############
         for b in bullets[:]:
             b[0]+=b[2]
@@ -231,11 +235,16 @@ def Game():
             screen.blit(bullet,(int(b[0]),int(b[1])))
         ##############################################
 
-        pic = pics[move][int(frame)]
-        screen.blit(pic, (BATMAN[SCREENX],BATMAN[Y]))
-
-        pic2 = Epics[move2][int(frame2)]
-        screen.blit(pic2, (ALIEN[X],ALIEN[Y]))
+        for i in bullets:
+            r = Rect(i)
+            if r.colliderect(alienRect): 
+                print('alien killed')
+                del bullets[bullets.index(i)]
+            else:
+                print('alien not killed')
+                    
+        if batRect.colliderect(alienRect):
+            pass
 
         health()
         enemyHealth()
