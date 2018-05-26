@@ -34,7 +34,6 @@ backgroundRect=Rect(0,0,1080,720)
 buttonRect = Rect(940,10,130,50)
 display.set_caption("THE AVENGERS AND JUSTICE LEAGUE")  #naming the program
 ## Global varaiables
-global bullets, rapid
 bullets = []
 rapid = 10
 
@@ -76,7 +75,7 @@ def menu():
         
 def moveBATMAN(BATMAN):
     keys = key.get_pressed()
-    global move, frame
+    global move, frame, rapid, bullets, bullet
     newMove = -1        
     if keys[K_LEFT] and BATMAN[X] > 10:
         newMove = LEFT
@@ -96,10 +95,9 @@ def moveBATMAN(BATMAN):
         BATMAN[ONGROUND]=False
 
     if keys[K_SPACE]:
-        rapid = 10
-        if rapid<10:
+        if rapid < 10:
             rapid+=1
-        if keys[32] and rapid==10:
+        if keys[K_SPACE] and rapid==10:
             rapid = 0
             VX = 5
             VY1 = 0
@@ -128,25 +126,28 @@ def moveBATMAN(BATMAN):
 
 def enemyMove(ALIEN):
     keys = key.get_pressed()
-    global move2, frame2, HEALTH, heal
+    global move2, frame2, HEALTH, heal, bullets
     newMove2 = -1
     print("ENmOVE",BATMAN[X],ALIEN[X])
-    if BATMAN[X] < ALIEN[X]:
+    if BATMAN[X] < ALIEN[X] and ALIEN[X] > 10:
         newMove2 = LEFT
         ALIEN[X] -= 5
+        if ALIEN[SCREENX] > 10:
+            ALIEN[SCREENX] -= 10
 
-    if BATMAN[X] > ALIEN[X]:
+    if BATMAN[X] > ALIEN[X] and ALIEN[X] < 2090:
         newMove2 = RIGHT
         ALIEN[X] += 5
+        if ALIEN[SCREENX] < 1000:
+            ALIEN[SCREENX] += 10
 
-    if BATMAN[X] == ALIEN[X]:
+    if BATMAN[X] == ALIEN[X] and BATMAN[Y] == ALIEN[Y]:
         newMove2 = -1
         frame2 = 0
         ALIEN[X] +=0
         if HEALTH > 0:
             HEALTH -=5
-            heal = heal * (HEALTH/100)
-
+            heal = int(heal * (HEALTH/100))
 
     if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
         frame2 = frame2 + 0.4 # adding 0.2 allows us to slow down the animation
@@ -173,8 +174,10 @@ def moveEnemy(name,start,end):
         start, end - The range of picture numbers 
     '''
     move2 = []
+    
     for i in range(start,end+1):
-        move2.append(image.load("%s/%s%03d.png" % (name,name,i)))        
+        move2.append(image.load("%s/%s%03d.png" % (name,name,i)))
+        
     return move2
 
 def health():
@@ -186,7 +189,11 @@ def health():
     for i in range (len(Gems)):
         draw.rect(screen,BLACK,Gems[i],2)
 
-    print(heal,HEALTH)    
+    print(heal,HEALTH)  
+
+def enemyHealth():
+    draw.rect(screen,RED,(ALIEN[X],ALIEN[Y]-20,35,5),0)
+    draw.rect(screen,GREEN,(ALIEN[X],ALIEN[Y]-20,35,5),0)
 
 def drawScene(screen,BATMAN):
     bullet = image.load("batman/bullet.png")
@@ -211,7 +218,7 @@ def drawScene(screen,BATMAN):
     screen.blit(pic2, (ALIEN[X],ALIEN[Y]))
 
     health()
-
+    enemyHealth()
     display.flip()
 
 '''
