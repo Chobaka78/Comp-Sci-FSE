@@ -95,17 +95,16 @@ def health():
     for i in range (len(Gems)):
         draw.rect(screen,BLACK,Gems[i],2)
 
-    # print(heal,HEALTH)  
-
-def enemyHealth():
-    draw.rect(screen,RED,(ALIEN[X],ALIEN[Y]-20,35,5),0)
-    draw.rect(screen,GREEN,(ALIEN[X],ALIEN[Y]-20,35,5),0)
+    # print(heal,HEALTH) 
 
 def Game():
-    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, bullets, bullet, move2, frame2, HEALTH, heal, bullets
+    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, bullets, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, hit
     level = "1"
     HEALTH = 100
+    Ehealth = 100
+    eheal = 35
     heal = 290
+    Alive = True
     BATMAN = [10,650,0,True,10]  # Batmans position in the game
     ALIEN = [1080,650,0,True,10]  # Aleins position in the game
     mixer.music.stop()
@@ -133,7 +132,8 @@ def Game():
         pic2 = Epics[move2][int(frame2)]
         alienRect = pic2.get_rect()
         alienRect.x, alienRect.y = ALIEN[X],ALIEN[Y]
-        screen.blit(pic2, (ALIEN[X],ALIEN[Y]))
+        if Alive == True:
+            screen.blit(pic2, (ALIEN[X],ALIEN[Y]))
 
         for evnt in event.get():          
             if evnt.type == QUIT:
@@ -197,30 +197,31 @@ def Game():
         mx, my = mouse.get_pos() 
 
         ############ MOVING THE ENEMY ###################
-        newMove2 = -1
-        if BATMAN[X] < ALIEN[X] and ALIEN[X] > 10:
-            newMove2 = LEFT
-            ALIEN[X] -= 5
-
-        if BATMAN[X] > ALIEN[X] and ALIEN[X] < 2090:
-            newMove2 = RIGHT
-            ALIEN[X] += 5
-
-        if batRect.colliderect(alienRect):
+        if Alive == True:
             newMove2 = -1
-            frame2 = 0
-            ALIEN[X] +=0
-            if HEALTH > 0:
-                HEALTH -=5
-                heal = int(heal * (HEALTH/100))
+            if BATMAN[X] < ALIEN[X] and ALIEN[X] > 10:
+                newMove2 = LEFT
+                ALIEN[X] -= 5
 
-        if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
-            frame2 = frame2 + 0.4 # adding 0.2 allows us to slow down the animation
-            if frame2 >= len(Epics[move2]):
-                frame2 = 1
-        elif newMove2 != -1:     # a move was selected
-            move2 = newMove2      # make that our current move
-            frame2 = 1     
+            if BATMAN[X] > ALIEN[X] and ALIEN[X] < 2090:
+                newMove2 = RIGHT
+                ALIEN[X] += 5
+
+            if batRect.colliderect(alienRect):
+                newMove2 = -1
+                frame2 = 0
+                ALIEN[X] +=0
+                if HEALTH > 0:
+                    HEALTH -=5
+                    heal = int(heal * (HEALTH/100))
+
+            if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
+                frame2 = frame2 + 0.4 # adding 0.2 allows us to slow down the animation
+                if frame2 >= len(Epics[move2]):
+                    frame2 = 1
+            elif newMove2 != -1:     # a move was selected
+                move2 = newMove2      # make that our current move
+                frame2 = 1     
         ##########################################################
 
         ############# MOVING THE BULLETS #############
@@ -234,25 +235,38 @@ def Game():
         for b in bullets:
             screen.blit(bullet,(int(b[0]),int(b[1])))
         ##############################################
-
+        ######## Checking for collide with bullets and alien ###########
         for i in bullets:
             r = Rect(i)
             if r.colliderect(alienRect): 
                 print('alien killed')
                 del bullets[bullets.index(i)]
-            else:
-                print('alien not killed')
+                Ehealth -=10
+                eheal = eheal * (Ehealth/100)
+
+        print(Ehealth, eheal)
                     
         if batRect.colliderect(alienRect):
             pass
 
+        if Ehealth <= 1:
+            Alive = False
+
+        else:
+            Alive = True
+            enemyHealth()
+        ################################################################
         health()
-        enemyHealth()
         display.update()
         myClock.tick(25)
         display.flip()
     
     return "menu"
+
+def enemyHealth():
+    global Ehealth, eheal, hit
+    draw.rect(screen,RED,(ALIEN[X],ALIEN[Y]-20,35,5),0)
+    draw.rect(screen,GREEN,(ALIEN[X],ALIEN[Y]-20,eheal,5),0)
 
 RIGHT = 0 # These are just the indices of the moves
 LEFT = 1
