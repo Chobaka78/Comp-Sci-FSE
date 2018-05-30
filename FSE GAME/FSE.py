@@ -97,19 +97,22 @@ def health():
         draw.rect(screen,BLACK,Gems[i],2)
 
     # print(heal,HEALTH)
-aliens = [[randint(0,780),650] for x in range(5)]
+aliens = [[randint(1080,1500),650] for x in range(5)]
+aliensRect = []
+for i in range(5):
+    aliensRect.append(Rect(aliens[i][0],650,44,60))
 ##pprint(aliens)
 
 def Game():
-    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, bullets, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, hit, aliens
+    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, bullets, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens
     level = "1"
     HEALTH = 100
     Ehealth = 100
     eheal = 35
     heal = 290
     Alive = True
+    Dir = 1
     BATMAN = [10,650,0,True,10]  # Batmans position in the game
-    ALIEN = [1080,650,0,True,10]  # Aleins position in the game
     mixer.music.stop()
     mixer.music.load("Music/Game music 2.mp3")
     mixer.music.play(-1)
@@ -117,6 +120,7 @@ def Game():
     myClock = time.Clock()
     ## Loading all images
     bullet = image.load("batman/bullet.png")
+    bullet1 = image.load("batman/bullet1.png")
     ###########################################
 
     if level == "1":
@@ -137,13 +141,8 @@ def Game():
             alienRectY = []
             alienRect = []
             pic2 = Epics[move2][int(frame2)]
-            alienRect = pic2.get_rect()
             for i in range(5):
-                alienRectX.append(aliens[i][0])
-                alienRectY.append(aliens[i][1])
-                screen.blit(pic2,(alienRectX[i],alienRectY[i]))
-            print(alienRectX,alienRectY)
-
+                screen.blit(pic2,aliensRect[i])
 
         for evnt in event.get():          
             if evnt.type == QUIT:
@@ -154,12 +153,14 @@ def Game():
         ############ MOVING BATMAN ###############     
         if keys[K_LEFT] and BATMAN[X] > 10:
             newMove = LEFT
+            Dir = -1
             BATMAN[X] -= 10
             if BATMAN[SCREENX] > 10:
                 BATMAN[SCREENX] -= 10
 
         if keys[K_RIGHT] and BATMAN[X] < 2090:
             newMove = RIGHT
+            Dir = 1
             BATMAN[X] += 10
             if BATMAN[SCREENX] < 1000:
                 BATMAN[SCREENX] += 10
@@ -169,12 +170,21 @@ def Game():
             BATMAN[VY] = -10
             BATMAN[ONGROUND]=False
 
-        if keys[K_SPACE]:
+        if keys[K_SPACE] and Dir == 1:
             if rapid < 10:
                 rapid+=1
             if keys[K_SPACE] and rapid==10:
                 rapid = 0
                 VX = 10
+                VY1 = 0
+                bullets.append([BATMAN[X],BATMAN[Y]+20,VX,VY1])
+
+        elif keys[K_SPACE] and Dir == -1:
+            if rapid < 10:
+                rapid+=1
+            if keys[K_SPACE] and rapid==10:
+                rapid = 0
+                VX = -10
                 VY1 = 0
                 bullets.append([BATMAN[X],BATMAN[Y]+20,VX,VY1])
 
@@ -210,62 +220,72 @@ def Game():
         if Alive == True:
             for i in range(5):
                 newMove2 = -1
-                if BATMAN[X] < alienRectX[i] and alienRectX[i] > 10:
+                if BATMAN[X] < aliensRect[i][0] and aliensRect[i][0] > 10:
                     newMove2 = LEFT
-                    alienRectX[i] -= 5
+                    aliensRect[i][0] -= 5
 
-                if BATMAN[X] > alienRectX[i] and alienRectX[i] < 2090:
+                if BATMAN[X] > aliensRect[i][0] and aliensRect[i][0] < 2090:
                     newMove2 = RIGHT
-                    alienRectX[i] += 5
-                for i in range(5):
-                    if batRect.colliderect(alienRect):
-                        newMove2 = -1
-                        frame2 = 0
-                        alienRectX[i] +=0
-                        if HEALTH > 0:
-                            HEALTH -=5
-                            heal = int(heal * (HEALTH/100))
+                    aliensRect[i][0] += 5
+                if batRect.colliderect(aliensRect[i]):
+                    newMove2 = -1
+                    frame2 = 0
+                    aliensRect[i][0] +=0
+                    if HEALTH > 0:
+                        HEALTH -=5
+                        heal = int(heal * (HEALTH/100))
 
-                    if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
-                        frame2 = frame2 + 0.4 # adding 0.2 allows us to slow down the animation
-                        if frame2 >= len(Epics[move2]):
-                            frame2 = 1
-                    elif newMove2 != -1:     # a move was selected
-                        move2 = newMove2      # make that our current move
-                        frame2 = 1     
+            if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
+                frame2 = frame2 + 0.4 # adding 0.2 allows us to slow down the animation
+                if frame2 >= len(Epics[move2]):
+                    frame2 = 1
+            elif newMove2 != -1:     # a move was selected
+                move2 = newMove2      # make that our current move
+                frame2 = 1     
         ##########################################################
 
         ############# MOVING THE BULLETS #############
-        for b in bullets[:]:
-            b[0]+=b[2]
-            b[1]+=b[3]
+        if Dir == 1:
+            for b in bullets[:]:
+                b[0]+=b[2]
+                b[1]+=b[3]
 
-            if max(b) > 1080 or min(b) < -0:
-                bullets.remove(b)
+                if max(b) > 1080 or min(b) < -0:
+                    bullets.remove(b)
 
-        for b in bullets:
-            screen.blit(bullet,(int(b[0]),int(b[1])))
+            for b in bullets:
+                screen.blit(bullet,(int(b[0]),int(b[1])))
+        elif Dir == -1:
+            for b in bullets[:]:
+                b[0]+=b[2]
+                b[1]+=b[3]
+
+                if max(b) > 1080 or min(b) < -0:
+                    bullets.remove(b)
+
+            for b in bullets:
+                screen.blit(bullet1,(int(b[0]),int(b[1])))
         ##############################################
         ######## Checking for collide with bullets and alien ###########
-        for i in bullets:
-            r = Rect(i)
-            if r.colliderect(alienRect): 
-                # print('alien killed')
-                del bullets[bullets.index(i)]
-                Ehealth -=10
-                eheal = eheal * (Ehealth/100)
+        for m in range(5):
+            for i in bullets:
+                r = Rect(i)
+                if r.colliderect(aliensRect[m]): 
+                    # print('alien killed')
+                    del bullets[bullets.index(i)]
+                    Ehealth -=10
+                    eheal = eheal * (Ehealth/100)
 
-        # print(Ehealth, eheal)
-                    
-        if batRect.colliderect(alienRect):
-            pass
+        # print(Ehealth, eheal)            
+            if batRect.colliderect(aliensRect[m]):
+                pass
 
-        if Ehealth <= 1:
-            Alive = False
+            if Ehealth <= 1:
+                Alive = False
 
-        else:
-            Alive = True
-            enemyHealth()
+            else:
+                Alive = True
+                enemyHealth()
         ################################################################
         health()
         display.update()
@@ -276,8 +296,9 @@ def Game():
 
 def enemyHealth():
     global Ehealth, eheal, hit
-    draw.rect(screen,RED,(ALIEN[X],ALIEN[Y]-20,35,5),0)
-    draw.rect(screen,GREEN,(ALIEN[X],ALIEN[Y]-20,eheal,5),0)
+    for i in range(5):
+        draw.rect(screen,RED,(aliensRect[i][0],aliensRect[i][1]-20,35,5),0)
+        draw.rect(screen,GREEN,(aliensRect[i][0],aliensRect[i][1]-20,eheal,5),0)
 
 RIGHT = 0 # These are just the indices of the moves
 LEFT = 1
