@@ -35,6 +35,8 @@ buttonRect = Rect(940,10,130,50)
 display.set_caption("THE AVENGERS AND JUSTICE LEAGUE")  #naming the program
 ## Global varaiables
 bullets = []
+bullets2 = []
+
 rapid = 10
 
 def menu():
@@ -104,7 +106,7 @@ for i in range(5):
 ##pprint(aliens)
 
 def Game():
-    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, bullets, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens
+    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, bullets, bullets2, bullet1, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens
     level = "1"
     HEALTH = 100
     Ehealth = 100
@@ -179,14 +181,15 @@ def Game():
                 VY1 = 0
                 bullets.append([BATMAN[X],BATMAN[Y]+20,VX,VY1])
 
-        elif keys[K_SPACE] and Dir == -1:
+        if keys[K_SPACE] and Dir == -1:
             if rapid < 10:
                 rapid+=1
             if keys[K_SPACE] and rapid==10:
                 rapid = 0
-                VX = -10
-                VY1 = 0
-                bullets.append([BATMAN[X],BATMAN[Y]+20,VX,VY1])
+                VX1 = -10
+                VY2 = 0
+                bullets2.append([BATMAN[X],BATMAN[Y]+20,VX1,VY2])
+                print('asasdahbsdbh',bullets2)
 
         BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
         if BATMAN[Y] >= 650:
@@ -236,7 +239,7 @@ def Game():
                         heal = int(heal * (HEALTH/100))
 
             if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
-                frame2 = frame2 + 0.4 # adding 0.2 allows us to slow down the animation
+                frame2 = frame2 + 0.2 # adding 0.2 allows us to slow down the animation
                 if frame2 >= len(Epics[move2]):
                     frame2 = 1
             elif newMove2 != -1:     # a move was selected
@@ -245,26 +248,24 @@ def Game():
         ##########################################################
 
         ############# MOVING THE BULLETS #############
-        if Dir == 1:
-            for b in bullets[:]:
-                b[0]+=b[2]
-                b[1]+=b[3]
+        for b in bullets[:]:
+            b[0]+=b[2]
+            b[1]+=b[3]
 
-                if max(b) > 1080 or min(b) < -0:
-                    bullets.remove(b)
+            if max(b) > 1080 or min(b) < -0:
+                bullets.remove(b)
 
-            for b in bullets:
-                screen.blit(bullet,(int(b[0]),int(b[1])))
-        elif Dir == -1:
-            for b in bullets[:]:
-                b[0]+=b[2]
-                b[1]+=b[3]
+        for b in bullets:
+            screen.blit(bullet,(int(b[0]),int(b[1])))
 
-                if max(b) > 1080 or min(b) < -0:
-                    bullets.remove(b)
+        for o in bullets2[:]:
+            o[0]+=o[2]
+            o[1]+=o[3]
 
-            for b in bullets:
-                screen.blit(bullet1,(int(b[0]),int(b[1])))
+            if max(o) > 1080 or min(o) < -0:
+                bullets2.remove(o)
+        for i in bullets2:
+            screen.blit(bullet1,(int(i[0]),int(i[1])))
         ##############################################
         ######## Checking for collide with bullets and alien ###########
         for m in range(5):
