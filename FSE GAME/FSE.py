@@ -139,9 +139,6 @@ def Game():
         screen.blit(pic, (BATMAN[SCREENX],BATMAN[Y]))
 
         if Alive == True:
-            alienRectX = []
-            alienRectY = []
-            alienRect = []
             pic2 = Epics[move2][int(frame2)]
             for i in range(5):
                 screen.blit(pic2,aliensRect[i])
@@ -189,7 +186,6 @@ def Game():
                 VX1 = -10
                 VY2 = 0
                 bullets2.append([BATMAN[X],BATMAN[Y]+20,VX1,VY2])
-                print('asasdahbsdbh',bullets2)
 
         BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
         if BATMAN[Y] >= 650:
@@ -262,8 +258,6 @@ def Game():
             o[0]+=o[2]
             o[1]+=o[3]
 
-            if max(o) > 1080 or min(o) < -0:
-                bullets2.remove(o)
         for i in bullets2:
             screen.blit(bullet1,(int(i[0]),int(i[1])))
         ##############################################
@@ -274,6 +268,14 @@ def Game():
                 if r.colliderect(aliensRect[m]): 
                     # print('alien killed')
                     del bullets[bullets.index(i)]
+                    Ehealth -=10
+                    eheal = eheal * (Ehealth/100)
+
+            for i in bullets2:
+                c = Rect(i)
+                if c.colliderect(aliensRect[m]): 
+                    # print('alien killed')
+                    del bullets2[bullets2.index(i)]
                     Ehealth -=10
                     eheal = eheal * (Ehealth/100)
 
@@ -345,7 +347,7 @@ def instructions():
         else:
             draw.rect(screen,WHITE,(940,10,150,50))
 
-        if mb[0] == 1:
+        if mb[0] == 1 and buttonRect.collidepoint(mx,my):
             return "game"
 
         screen.blit(cont_button,(940,10)) # blitting the button
@@ -372,7 +374,7 @@ def credit():
             draw.rect(screen,BLUE,buttonRect1,2)
         else:
             draw.rect(screen,WHITE,buttonRect1)
-        if mb[0] == 1:
+        if mb[0] == 1 and buttonRect1.collidepoint(mx,my):
             return "game"
 
         screen.blit(cont_button,(940,660)) # blitting the button
@@ -403,7 +405,7 @@ def story():
             draw.rect(screen,WHITE,buttonRect2,2)
         else:
             draw.rect(screen,BLACK,buttonRect2)
-        if mb[0] == 1:
+        if mb[0] == 1 and buttonRect2.collidepoint(mx,my):
             return "game"
 
         screen.blit(cont_button,(940,0)) # blitting the button
