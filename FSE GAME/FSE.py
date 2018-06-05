@@ -11,6 +11,7 @@ root.withdraw()
 
 import os
 os.environ['SDL_VIDEO_WINDOW_POS'] = "10,30"
+
 offset = 0
 size = width, height = 1080, 720
 screen = display.set_mode(size)
@@ -94,14 +95,14 @@ def health():
     draw.rect(screen,BLUE,(5,35,225,20),0)
     draw.rect(screen,RED,(10,10,heal,15),0)
     draw.rect(screen,LightBLue,(10,40,215,10),0)
-    Gems = [Rect(5+x*40,45+20,35,15) for x in range(5)]
+    Gems = [Rect(5+x*40,45+20,35,15) for x in range(1)]
     for i in range (len(Gems)):
         draw.rect(screen,BLACK,Gems[i],2)
 
     # print(heal,HEALTH)
-aliens = [[randint(700,800),650] for x in range(5)]
+aliens = [[randint(400,500),650] for x in range(1)]
 aliensRect = []
-for i in range(5):
+for i in range(1):
     aliensRect.append(Rect(aliens[i][0],650,44,60))
 ##pprint(aliens)
 
@@ -136,14 +137,15 @@ def Game():
         pic = pics[move][int(frame)]
         batRect = pic.get_rect()
         batRect.x, batRect.y = BATMAN[X],BATMAN[Y]
+        draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],40,70),1)
         screen.blit(pic, (540,BATMAN[Y]))
 
         if Alive == True:
             pic2 = Epics[move2][int(frame2)]
-            for i in range(5):
+            for i in range(1):
                 aliensRect[i].move(offset,0)
                 screen.blit(pic2,aliensRect[i])
-        print(offset,BATMAN[X])
+        print(offset,BATMAN[X],aliensRect,batRect)
 
         for evnt in event.get():          
             if evnt.type == QUIT:
@@ -156,11 +158,13 @@ def Game():
             newMove = LEFT
             Dir = -1
             BATMAN[X] -= 10
+            aliensRect[0][0] +=10
 
         if keys[K_RIGHT] and BATMAN[X] < 2000:
             newMove = RIGHT
             Dir = 1
             BATMAN[X] += 10
+            aliensRect[0][0] -=10
 
         if keys[K_UP] and BATMAN[ONGROUND]:
             newMove = Jump
@@ -215,22 +219,26 @@ def Game():
 
         ############ MOVING THE ENEMY ###################
         if Alive == True:
-            for i in range(5):
-                newMove2 = -1
-                if BATMAN[X] < aliensRect[i][0] and aliensRect[i][0] > 10:
-                    newMove2 = LEFT
-                    aliensRect[i][0] -= 5
+            for i in range(1):
 
-                if BATMAN[X] > aliensRect[i][0] and aliensRect[i][0] < 2090:
+                newMove2 = -1
+                if batRect.x < aliensRect[i][0] and aliensRect[i][0] > 10:
+                    newMove2 = LEFT
+
+                    aliensRect[i][0] -= 5
+                    
+
+                if batRect.x > aliensRect[i][0] and aliensRect[i][0] < 2090:
                     newMove2 = RIGHT
                     aliensRect[i][0] += 5
-                if batRect.colliderect(aliensRect[i]):
-                    newMove2 = -1
-                    frame2 = 0
-                    aliensRect[i][0] +=0
-                    if HEALTH > 0:
-                        HEALTH -=5
-                        heal = int(heal * (HEALTH/100))
+                
+            if batRect.colliderect(aliensRect[i]):
+                newMove2 = -1
+                frame2 = 0
+                aliensRect[i][0] +=0
+                if HEALTH > 0:
+                    HEALTH -=5
+                    heal = int(heal * (HEALTH/100))
 
             if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
                 frame2 = frame2 + 0.2 # adding 0.2 allows us to slow down the animation
@@ -260,7 +268,7 @@ def Game():
             screen.blit(bullet1,(int(i[0]),int(i[1])))
         ##############################################
         ######## Checking for collide with bullets and alien ###########
-        for m in range(5):
+        for m in range(1):
             for i in bullets:
                 r = Rect(i)
                 if r.colliderect(aliensRect[m]): 
@@ -297,7 +305,7 @@ def Game():
 
 def enemyHealth():
     global Ehealth, eheal, hit
-    for i in range(5):
+    for i in range(1):
         draw.rect(screen,RED,(aliensRect[i][0],aliensRect[i][1]-20,35,5),0)
         draw.rect(screen,GREEN,(aliensRect[i][0],aliensRect[i][1]-20,eheal,5),0)
 
