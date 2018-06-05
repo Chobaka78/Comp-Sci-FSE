@@ -11,7 +11,7 @@ root.withdraw()
 
 import os
 os.environ['SDL_VIDEO_WINDOW_POS'] = "10,30"
-
+offset = 0
 size = width, height = 1080, 720
 screen = display.set_mode(size)
 
@@ -99,7 +99,7 @@ def health():
         draw.rect(screen,BLACK,Gems[i],2)
 
     # print(heal,HEALTH)
-aliens = [[randint(1080,1500),650] for x in range(5)]
+aliens = [[randint(700,800),650] for x in range(5)]
 aliensRect = []
 for i in range(5):
     aliensRect.append(Rect(aliens[i][0],650,44,60))
@@ -114,15 +114,15 @@ def Game():
     heal = 290
     Alive = True
     Dir = 1
-    BATMAN = [10,650,0,True,10]  # Batmans position in the game
+    BATMAN = [540,650,0,True]  # Batmans position in the game
     mixer.music.stop()
     mixer.music.load("Music/Game music 2.mp3")
     mixer.music.play(-1)
     running = True
     myClock = time.Clock()
     ## Loading all images
-    bullet = image.load("batman/bullet.png")
-    bullet1 = image.load("batman/bullet1.png")
+    bullet = image.load("Bullet/bullet.png")
+    bullet1 = transform.flip(bullet,True,False)
     ###########################################
 
     if level == "1":
@@ -130,18 +130,20 @@ def Game():
     
     while running:
 
-        offset = BATMAN[SCREENX] - BATMAN[X]
+        offset = 540 - BATMAN[X]
         screen.blit(LEVEL1back,(offset,0))
 
         pic = pics[move][int(frame)]
         batRect = pic.get_rect()
-        batRect.x, batRect.y = BATMAN[SCREENX],BATMAN[Y]
-        screen.blit(pic, (BATMAN[SCREENX],BATMAN[Y]))
+        batRect.x, batRect.y = BATMAN[X],BATMAN[Y]
+        screen.blit(pic, (540,BATMAN[Y]))
 
         if Alive == True:
             pic2 = Epics[move2][int(frame2)]
             for i in range(5):
+                aliensRect[i].move(offset,0)
                 screen.blit(pic2,aliensRect[i])
+        print(offset,BATMAN[X])
 
         for evnt in event.get():          
             if evnt.type == QUIT:
@@ -150,19 +152,15 @@ def Game():
         keys = key.get_pressed()
         newMove = -1   
         ############ MOVING BATMAN ###############     
-        if keys[K_LEFT] and BATMAN[X] > 10:
+        if keys[K_LEFT] and BATMAN[X] > 540:
             newMove = LEFT
             Dir = -1
             BATMAN[X] -= 10
-            if BATMAN[SCREENX] > 10:
-                BATMAN[SCREENX] -= 10
 
-        if keys[K_RIGHT] and BATMAN[X] < 2090:
+        if keys[K_RIGHT] and BATMAN[X] < 2000:
             newMove = RIGHT
             Dir = 1
             BATMAN[X] += 10
-            if BATMAN[SCREENX] < 1000:
-                BATMAN[SCREENX] += 10
 
         if keys[K_UP] and BATMAN[ONGROUND]:
             newMove = Jump
@@ -309,10 +307,10 @@ Jump = 2
 Punch = 3
 
 pics = [] #2d list
-pics.append(makeMove("batman",0,16))# RIGHT
-pics.append(makeMove("batman",26,34))# LEFT
-pics.append(makeMove("batman",35,38))# Jumping
-pics.append(makeMove("batman",39,49))# Punching
+pics.append(makeMove("Run",0,16))# RIGHT
+pics.append(makeMove("RunLeft",0,16))# LEFT
+pics.append(makeMove("Jump",0,4))# Jumping
+pics.append(makeMove("Punch",0,11))# Punching
 
 Epics=[]
 Epics.append(moveEnemy("alien",1,7))# RIGHT
@@ -416,7 +414,6 @@ X=0
 Y=1
 VY=2
 ONGROUND=3
-SCREENX = 4
 running = True
 x,y = 0,0
 OUTLINE = (150,50,30)
