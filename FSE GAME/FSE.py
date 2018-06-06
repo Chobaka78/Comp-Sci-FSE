@@ -35,13 +35,16 @@ backgroundRect=Rect(0,0,1080,720)
 buttonRect = Rect(940,10,130,50)
 display.set_caption("THE AVENGERS AND JUSTICE LEAGUE")  #naming the program
 ## Global varaiables
+
 bullets = []
 bullets2 = []
-
 rapid = 10
+music_List = ["Music/Game music 1.mp3", "Music/Game music 2.mp3", "Music/Game music.mp3", "Music/StoryMusic.mp3"]
 
-def menu():
-    mixer.music.load("Music/Game music 1.mp3")
+
+def menu(): # function for the menu screen
+    global music_List
+    mixer.music.load(music_List[0])
     mixer.music.play(-1)
     running = True
     myClock = time.Clock()
@@ -107,7 +110,7 @@ for i in range(5):
 ##pprint(aliens)
 
 def Game():
-    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, bullets, bullets2, bullet1, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens
+    global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, music_List, bullets, bullets2, bullet1, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens
     level = "1"
     HEALTH = 100
     Ehealth = 100
@@ -117,7 +120,7 @@ def Game():
     Dir = 1
     BATMAN = [540,650,0,True]  # Batmans position in the game
     mixer.music.stop()
-    mixer.music.load("Music/Game music 2.mp3")
+    mixer.music.load(music_List[1])
     mixer.music.play(-1)
     running = True
     myClock = time.Clock()
@@ -145,7 +148,8 @@ def Game():
             for i in range(5):
                 aliensRect[i].move(offset,0)
                 screen.blit(pic2,aliensRect[i])
-        print(offset,BATMAN[X],aliensRect,batRect)
+        draw.rect(screen,RED,aliensRect[0],2)
+        # print(offset,batRect.x,aliensRect[i],BATMAN[X])
 
         for evnt in event.get():          
             if evnt.type == QUIT:
@@ -180,7 +184,7 @@ def Game():
                 rapid = 0
                 VX = 10
                 VY1 = 0
-                bullets.append([BATMAN[X],BATMAN[Y]+20,VX,VY1])
+                bullets.append([(batRect.x + offset),batRect.y+20,VX,VY1])
 
         if keys[K_SPACE] and Dir == -1:
             if rapid < 10:
@@ -189,7 +193,7 @@ def Game():
                 rapid = 0
                 VX1 = -10
                 VY2 = 0
-                bullets2.append([BATMAN[X],BATMAN[Y]+20,VX1,VY2])
+                bullets2.append([(batRect.x + offset),batRect.y+20,VX1,VY2])
 
         BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
         if BATMAN[Y] >= 650:
@@ -224,16 +228,16 @@ def Game():
             for i in range(5):
 
                 newMove2 = -1
-                if batRect.x < aliensRect[i][0] and aliensRect[i][0] > 10:
+                if (batRect.x+offset) < aliensRect[i][0] and aliensRect[i][0] > 10:
                     newMove2 = LEFT
                     aliensRect[i][0] -= 5
                     
 
-                if batRect.x > aliensRect[i][0] and aliensRect[i][0] < 2090:
+                if (batRect.x + offset) > aliensRect[i][0] and aliensRect[i][0] < 2090:
                     newMove2 = RIGHT
                     aliensRect[i][0] += 5
                 
-            if batRect.colliderect(aliensRect[i]):
+            if aliensRect[i].colliderect(batRect):
                 newMove2 = -1
                 frame2 = 0
                 aliensRect[i][0] +=0
@@ -331,10 +335,10 @@ frame2 = 0
 move2 = 0
 
 def instructions():
+    global music_List
     mixer.music.stop()
-    mixer.music.load("Music/Game music.mp3")
     mixer.music.play(-1)
-
+    mixer.music.load(music_List[2])
     inst = image.load("images/instructions.png")
     inst = transform.smoothscale(inst, screen.get_size())
     screen.blit(inst,(0,0))
@@ -363,6 +367,10 @@ def instructions():
     return "menu"
         
 def credit():
+    global music_List
+    mixer.music.stop()
+    mixer.music.load(music_List[0])
+    mixer.music.play()
     running = True
     cred = image.load("images/credits.png")
     cred = transform.smoothscale(cred, screen.get_size())
@@ -389,8 +397,9 @@ def credit():
     return "menu"
 
 def story():
+    global music_List
     mixer.music.stop()
-    mixer.music.load("Music/StoryMusic.mp3")
+    mixer.music.load(music_List[3])
     mixer.music.play(-1)
     buttonRect2 = Rect(940,0,130,50)
     running = True
