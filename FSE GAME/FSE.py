@@ -146,9 +146,9 @@ def Game():
         screen.blit(LEVEL1back,(offset,0))
         screen.blit(batmobilepic,((50 + offset),622))
         pic = pics[move][int(frame)]
-        batRect = pic.get_rect()
-        batRect.x, batRect.y = BATMAN[X],BATMAN[Y]
+        batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)      
         draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],40,70),1)
+        draw.rect(screen,LightBLue,batRect,2)
         screen.blit(pic, (540,BATMAN[Y]))
 
         #if Alive == True:
@@ -156,7 +156,7 @@ def Game():
         for i in range(5):
             aliensRect[i].move(offset,0)
             screen.blit(pic2,aliensRect[i])
-        draw.rect(screen,RED,aliensRect[0],2)
+            draw.rect(screen,RED,aliensRect[i],2)
         # print(offset,batRect.x,aliensRect[i],BATMAN[X])
 
         for evnt in event.get():          
@@ -185,23 +185,24 @@ def Game():
             BATMAN[VY] = -10
             BATMAN[ONGROUND]=False
 
-        if keys[K_SPACE] and Dir == 1:
-            if rapid < 10:
-                rapid+=1
-            if keys[K_SPACE] and rapid==10:
-                rapid = 0
-                VX = 10
-                VY1 = 0
-                bullets.append([(batRect.x + offset),batRect.y+20,VX,VY1])
+        if keys[K_SPACE]:
+            if Dir == 1:
+                if rapid < 10:
+                    rapid+=1
+                if keys[K_SPACE] and rapid==10:
+                    rapid = 0
+                    VX = 10
+                    VY1 = 0
+                    bullets.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX,VY1])
+            elif Dir == -1:
+                if rapid < 10:
+                    rapid+=1
+                if keys[K_SPACE] and rapid==10:
+                    rapid = 0
+                    VX1 = -10
+                    VY2 = 0
+                    bullets2.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX1,VY2])
 
-        if keys[K_SPACE] and Dir == -1:
-            if rapid < 10:
-                rapid+=1
-            if keys[K_SPACE] and rapid==10:
-                rapid = 0
-                VX1 = -10
-                VY2 = 0
-                bullets2.append([(batRect.x + offset),batRect.y+20,VX1,VY2])
 
         BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
         if BATMAN[Y] >= 650:
@@ -236,26 +237,26 @@ def Game():
             for i in range(5):
 
                 newMove2 = -1
-                if (batRect.x+offset) < aliensRect[i][0] and aliensRect[i][0] > 10:
+                if (BATMAN[X]+offset) < aliensRect[i][0] and aliensRect[i][0] > 10:
                     newMove2 = LEFT
-                    eV=randint(1,12)
+                    eV=randint(1,7)
 
                     aliensRect[i][0] -= eV
                     
 
-                if (batRect.x + offset) > aliensRect[i][0] and aliensRect[i][0] < 2090:
+                if (BATMAN[X] + offset) > aliensRect[i][0] and aliensRect[i][0] < 2090:
                     newMove2 = RIGHT
-                    eV=randint(1,12)
+                    eV=randint(1,7)
 
                     aliensRect[i][0] += eV
                 
-            if aliensRect[i].colliderect(batRect):
-                newMove2 = -1
-                frame2 = 0
-                aliensRect[i][0] +=0
-                if HEALTH > 0:
-                    HEALTH -=5
-                    heal = int(heal * (HEALTH/100))
+                if aliensRect[i].colliderect(batRect):
+                    newMove2 = -1
+                    frame2 = 0
+                    aliensRect[i][0] +=0
+                    if HEALTH > 0:
+                        HEALTH -=5
+                        heal = int(heal * (HEALTH/100))
 
             if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
                 frame2 = frame2 + 0.2 # adding 0.2 allows us to slow down the animation
@@ -316,7 +317,7 @@ def Game():
         ################################################################
         health()
         display.update()
-        myClock.tick(60)
+        myClock.tick(25)
         display.flip()
     
     return "menu"
