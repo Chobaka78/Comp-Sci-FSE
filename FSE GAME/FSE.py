@@ -109,12 +109,18 @@ for i in range(5):
     aliensRect.append(Rect(aliens[i][0],660,44,60))
 ##pprint(aliens)
 
+
+aliensAlive = [1 for x in range(5)]
+
+EhealthList = [100 for x in range(5)]
+ehealList = [35 for x in range(5)]
+
 def Game():
     global BATMAN, heal, HEALTH, ALIEN, move, frame, rapid, music_List, bullets, bullets2, bullet1, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens
     level = "1"
     HEALTH = 100
-    Ehealth = 100
-    eheal = 35
+ #   Ehealth = 100
+#    eheal = 35
     heal = 290
     Alive = True
     Dir = 1
@@ -126,28 +132,30 @@ def Game():
     myClock = time.Clock()
     ## Loading all images
     bullet = image.load("Bullet/bullet.png")
+    batmobile = image.load("images/batmobile.jpg")
+    batmobilepic = transform.scale(batmobile,(225,75))
     bullet1 = transform.flip(bullet,True,False)
     ###########################################
 
     if level == "1":
         LEVEL1back=image.load("images/Level1Back.png")
-    
+
     while running:
 
         offset = 540 - BATMAN[X]
         screen.blit(LEVEL1back,(offset,0))
-
+        screen.blit(batmobilepic,((50 + offset),622))
         pic = pics[move][int(frame)]
         batRect = pic.get_rect()
         batRect.x, batRect.y = BATMAN[X],BATMAN[Y]
         draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],40,70),1)
         screen.blit(pic, (540,BATMAN[Y]))
 
-        if Alive == True:
-            pic2 = Epics[move2][int(frame2)]
-            for i in range(5):
-                aliensRect[i].move(offset,0)
-                screen.blit(pic2,aliensRect[i])
+        #if Alive == True:
+        pic2 = Epics[move2][int(frame2)]
+        for i in range(5):
+            aliensRect[i].move(offset,0)
+            screen.blit(pic2,aliensRect[i])
         draw.rect(screen,RED,aliensRect[0],2)
         # print(offset,batRect.x,aliensRect[i],BATMAN[X])
 
@@ -161,14 +169,14 @@ def Game():
         if keys[K_LEFT] and BATMAN[X] > 540:
             newMove = LEFT
             Dir = -1
-            BATMAN[X] -= 10
+            BATMAN[X] -= 13
             for i in range(5):
                 aliensRect[i][0] +=10
 
-        if keys[K_RIGHT] and BATMAN[X] < 2000:
+        if keys[K_RIGHT] and BATMAN[X] < 4050:
             newMove = RIGHT
             Dir = 1
-            BATMAN[X] += 10
+            BATMAN[X] += 13
             for i in range(5):
                 aliensRect[i][0] -=10
 
@@ -230,12 +238,16 @@ def Game():
                 newMove2 = -1
                 if (batRect.x+offset) < aliensRect[i][0] and aliensRect[i][0] > 10:
                     newMove2 = LEFT
-                    aliensRect[i][0] -= 5
+                    eV=randint(1,12)
+
+                    aliensRect[i][0] -= eV
                     
 
                 if (batRect.x + offset) > aliensRect[i][0] and aliensRect[i][0] < 2090:
                     newMove2 = RIGHT
-                    aliensRect[i][0] += 5
+                    eV=randint(1,12)
+
+                    aliensRect[i][0] += eV
                 
             if aliensRect[i].colliderect(batRect):
                 newMove2 = -1
@@ -279,23 +291,24 @@ def Game():
                 if r.colliderect(aliensRect[m]): 
                     # print('alien killed')
                     del bullets[bullets.index(i)]
-                    Ehealth -=10
-                    eheal = eheal * (Ehealth/100)
+                    EhealthList[m] -=10
+                    ehealList[m] = ehealList[m] * (EhealthList[m]/100)
 
             for i in bullets2:
                 c = Rect(i)
                 if c.colliderect(aliensRect[m]): 
                     # print('alien killed')
                     del bullets2[bullets2.index(i)]
-                    Ehealth -=10
-                    eheal = eheal * (Ehealth/100)
+                    EhealthList[m] -=10
+                    ehealList[m] = ehealList[m] * (EhealthList[m]/100)
 
         # print(Ehealth, eheal)            
             if batRect.colliderect(aliensRect[m]):
                 pass
 
-            if Ehealth <= 1:
-                Alive = False
+            if EhealthList[m] <= 1:
+                aliensRect[m].top=1500
+               # print(aliensRect[m].top)
 
             else:
                 Alive = True
@@ -303,7 +316,7 @@ def Game():
         ################################################################
         health()
         display.update()
-        myClock.tick(25)
+        myClock.tick(60)
         display.flip()
     
     return "menu"
@@ -312,7 +325,7 @@ def enemyHealth():
     global Ehealth, eheal, hit
     for i in range(5):
         draw.rect(screen,RED,(aliensRect[i][0],aliensRect[i][1]-20,35,5),0)
-        draw.rect(screen,GREEN,(aliensRect[i][0],aliensRect[i][1]-20,eheal,5),0)
+        draw.rect(screen,GREEN,(aliensRect[i][0],aliensRect[i][1]-20,ehealList[i],5),0)
 
 RIGHT = 0 # These are just the indices of the moves
 LEFT = 1
