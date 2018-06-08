@@ -34,7 +34,8 @@ HEALTH = 100
 heal = 290
 Dir = 1
 BATMAN = [540,650,0,True]  # Batmans position in the game
-
+FLASH = [4050,650,0,True]
+Boss = False
 ####################################################### Making the aliens
 aliens = [[randint(1100,2000),650] for x in range(5)]
 aliensRect = []
@@ -43,7 +44,6 @@ for i in range(5):
 ##pprint(aliens)
 aliensAlive = []
 dead = False
-index = 0
 
 EhealthList = [100 for x in range(5)]
 ehealList = [35 for x in range(5)]
@@ -113,6 +113,14 @@ def moveEnemy(name,start,end):
         
     return move2
 
+def moveFlash(name,start,end):
+    move3 = []
+
+    for i in range(start,end+1):
+        move3.append(image.load("%s/%s%03d.png" % (name,name,i)))
+        
+    return move3
+
 def health(): # This is the player health function
     draw.rect(screen,BLUE,(5,5,300,25),0)
     draw.rect(screen,BLUE,(5,35,225,20),0)
@@ -123,12 +131,14 @@ def health(): # This is the player health function
         draw.rect(screen,BLACK,Gems[i],2)
 
 def reset(): ## this function resets player position enemy position everytime the game restarts
-    global level, HEALTH, heal, Dir, BATMAN, aliens, index, aliensRect, aliensAlive, EhealthList, ehealList
+    global level, HEALTH, heal, Dir, BATMAN, aliens, aliensRect, aliensAlive, EhealthList, ehealList, FLASH, Boss
     level = "1"
     HEALTH = 100
     heal = 290
     Dir = 1
     BATMAN = [540,650,0,True]  # Batmans position in the game
+    FLASH = [4050,650,0,True]
+    Boss = False
 
     aliens = [[randint(1100,2000),650] for x in range(5)]
     aliensRect = []
@@ -141,7 +151,7 @@ def reset(): ## this function resets player position enemy position everytime th
     ehealList = [35 for x in range(5)]
 
 def Game():
-    global BATMAN, heal, HEALTH, ALIEN, move, dead, frame, Ecounter, rapid, music_List, bullets, bullets2, bullet1, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens
+    global BATMAN, heal, HEALTH, ALIEN, move, dead, frame, Ecounter, rapid, music_List, bullets, bullets2, bullet1, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens, frame3, move3, FLASH, Boss
     reset()
     mixer.music.stop()
     mixer.music.load(music_List[1])
@@ -176,14 +186,23 @@ def Game():
             screen.blit(pic2,aliensRect[i])
             draw.rect(screen,RED,aliensRect[i],2)
         # print(offset,batRect.x,aliensRect[i],BATMAN[X])
+        ######### BLitting FLash########
+        print(frame3,move3)
+        pic_3 = FlashPics[move3][int(frame3)]
+        pic3 = transform.scale(pic_3,(40,70))
+        Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
+        screen.blit(pic3,Flashrect)
+        draw.rect(screen,WHITE,Flashrect,2)
 
         for evnt in event.get():          
             if evnt.type == QUIT:
                 running = False
-                
+
         keys = key.get_pressed()
         newMove = -1   
-        ############ MOVING BATMAN ###############     
+        ############ MOVING BATMAN ###############   
+        if keys[K_a]:
+            Boss = True  
         if keys[K_LEFT] and BATMAN[X] > 540:
             newMove = LEFT
             Dir = -1
@@ -246,7 +265,6 @@ def Game():
         elif newMove != -1:     # a move was selected
             move = newMove      # make that our current move
             frame = 1
-        ############################################
 
         mx, my = mouse.get_pos() 
 
@@ -281,6 +299,24 @@ def Game():
             frame2 = 1     
         ##########################################################
 
+        #################### MOVING FLASH #######################
+        newMove3 = -1
+        if Boss == True:
+            if (BATMAN[X] + offset) > FLASH[X] and FLASH[X] < 4050:
+                newMove3 = RIGHT
+                FLASH[X] +=20
+
+            if (BATMAN[X] + offset) < FLASH[X] and FLASH[X] > 10:
+                newMove3 = LEFT
+                FLASH[X] -=20
+
+            if move3 == newMove3:     # 0 is a standing pose, so we want to skip over it when we are moving
+                frame3 = frame3 + 0.4 # adding 0.2 allows us to slow down the animation
+                if frame3 >= len(Epics[move2]):
+                    frame3 = 1
+            elif newMove3 != -1:     # a move was selected
+                move3 = newMove3      # make that our current move
+                frame3 = 0 
         ############# MOVING THE BULLETS #############
         for b in bullets[:]:
             b[0]+=b[2]
@@ -308,7 +344,6 @@ def Game():
                     del bullets[bullets.index(i)]
                     EhealthList[m] -=10
                     ehealList[m] = ehealList[m] * (EhealthList[m]/100)
-                    index = aliensRect[aliensRect.index(m)]
 
             for i in bullets2:
                 c = Rect(i)
@@ -317,17 +352,13 @@ def Game():
                     del bullets2[bullets2.index(i)]
                     EhealthList[m] -=10
                     ehealList[m] = ehealList[m] * (EhealthList[m]/100)
-                    index = aliensRect[aliensRect.index(m)]
 
         # print(Ehealth, eheal)            
             if batRect.colliderect(aliensRect[m]):
                 pass         
 
             if EhealthList[m] == 0:
-                aliensRect.remove(index)
-
-
-            print(EhealthList,aliensAlive,aliensRect)
+                aliensRect[m].top = 1500
 
         ################################################################
         enemyHealth()
@@ -359,10 +390,19 @@ Epics=[]
 Epics.append(moveEnemy("alien",1,7))# RIGHT
 Epics.append(moveEnemy("alien",8,14))# LEFT
 
+FlashPics = []
+# FlashPics.append(moveFlash("FlashRun",0,1))# Right 
+# FlashPics.append(moveFlash("FlashRunLeft",0,1))# Left
+FlashPics.append(moveFlash("FlashPunch",0,11)) # Punch Right
+FlashPics.append(moveFlash("FlashPunchLeft",0,11))# Punch Left
+FlashPics.append(moveFlash("FlashDead",0,5))
+
 frame = 0     # current frame within the move
 move = 0      # current move being performed (right, down, up, left)
 frame2 = 0
 move2 = 0
+frame3 = 0
+move3 = 0
 
 def instructions():
     global music_List
