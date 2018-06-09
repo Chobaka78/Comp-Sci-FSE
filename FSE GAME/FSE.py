@@ -1,21 +1,22 @@
 #FSE.py
-from pygame import *
+from pygame import * # importing pygame
 from datetime import datetime
-from math import *
-from random import *
-from tkinter import *
-from pprint import pprint
+from math import * # importing math 
+from random import * # importing random to make random numbers, etc.
+from tkinter import * # importing tkinter
+from pprint import pprint # importing pretty print for tracing program, etc.
 init()
 root=Tk()
-root.withdraw()
+root.withdraw() # this gets rid of the extra window
 
 import os
-os.environ['SDL_VIDEO_WINDOW_POS'] = "10,30"
+os.environ['SDL_VIDEO_WINDOW_POS'] = "10,30" # centering the game
 
-offset = 0
-size = width, height = 1080, 720
+offset = 0 ## this is the offset based on the screen and the player x 
+size = width, height = 1080, 720 ## size of the screen
 screen = display.set_mode(size)
 
+############### COLOURS ##############
 RED=(255,0,0)
 GREEN=(0,255,0)
 BLUE=(0,0,139)
@@ -24,37 +25,23 @@ WHITE=(255,255,255)    ## basic colors that doesnt change in capital
 BLACK=(0,0,0)
 YELLOW=(255,255,0)
 
-X=0 
-Y=1
-VY=2
-ONGROUND=3
+X=0 # X = 0
+Y=1 # Y = 1
+VY=2 # velocity y = 2
+ONGROUND=3 # ounground 
 
-level = "1"
-HEALTH = 100
-heal = 290
-Dir = 1
-BATMAN = [540,650,0,True]  # Batmans position in the game
-FLASH = [4050,650,0,True]
-Boss = False
-####################################################### Making the aliens
-aliens = [[randint(1100,2000),650] for x in range(5)]
-aliensRect = []
-for i in range(5):
-    aliensRect.append(Rect(aliens[i][0],660,44,60))
-##pprint(aliens)
-aliensAlive = []
-dead = False
-
-EhealthList = [100 for x in range(5)]
-ehealList = [35 for x in range(5)]
-########################################################
-
+################ LOADING ALL MAIN IMAGES ################
 firstBack = image.load("images/firstBack.png")
 cont_button = image.load("images/continue-button.png")
+LEVEL1back=image.load("images/Level1Back.png")
+LEVEL2back=image.load("images/Level2Back.png")
+bullet = image.load("Bullet/bullet.png")
+batmobile = image.load("images/batmobile.jpg")
+batmobilepic = transform.scale(batmobile,(225,75))
+bullet1 = transform.flip(bullet,True,False)
 backgroundRect=Rect(0,0,1080,720)
 buttonRect = Rect(940,10,130,50)
 display.set_caption("THE AVENGERS AND JUSTICE LEAGUE")  #naming the program
-## Global varaiables
 
 bullets = []
 bullets2 = []
@@ -99,13 +86,13 @@ def menu(): # function for the menu screen
                 draw.rect(screen,YELLOW,buttons[i],2)            
         display.flip()
                 
-def makeMove(name,start,end):
+def makeMove(name,start,end): ## Moving for batman
     move = []
     for i in range(start,end+1):
         move.append(image.load("%s/%s%03d.png" % (name,name,i)))        
     return move
 
-def moveEnemy(name,start,end):
+def moveEnemy(name,start,end): ## Moving for aliens 
     move2 = []
 
     for i in range(start,end+1):
@@ -113,13 +100,291 @@ def moveEnemy(name,start,end):
         
     return move2
 
-def moveFlash(name,start,end):
+def moveFlash(name,start,end): # Moving for flash
     move3 = []
 
     for i in range(start,end+1):
         move3.append(image.load("%s/%s%03d.png" % (name,name,i)))
         
     return move3
+
+def reset(): ## this function resets player position enemy position everytime the game restarts
+    global level, HEALTH, heal, Dir, BATMAN, aliens, aliensRect, aliensAlive, EhealthList, ehealList, FLASH, Boss
+    level = "1" ## level originally = 1
+    HEALTH = 100 ## health of the player orignally = 100
+    heal = 290 ## this is the width of the players health bar
+    Dir = 1 # this is the direction used in bullets and bullets2 list
+    BATMAN = [540,650,0,True]  # Batmans position in the game
+    FLASH = [4050,650,0,True]  # This is FLASH's position in the game
+    Boss = False ## This is a temporary boolean var to check if boss spawns or not
+
+    ############## MAKING THE ALIEN'S RECTS #################################
+    aliens = [[randint(1100,2000),650] for x in range(5)] # 2d list with random x values
+    aliensRect = [] # this is going to be a 2d list that will hold the rects
+    for i in range(5):
+        aliensRect.append(Rect(aliens[i][0],660,44,60)) ## taking the x value and appending y,w,h values
+    ##pprint(aliens)
+    aliensAlive = [] # this is a temporary list that checks for alive aliens
+    dead = False # this is a temporary boolean variable that checks if alien is dead
+
+    EhealthList = [100 for x in range(5)] # this is the aliens health starting at 100
+    ehealList = [35 for x in range(5)] # this is the width of the alien health bar
+
+def moveBatman(BATMAN): # This function deals with all of batman's movements
+    global Boss, newMove, Dir, aliensRect, rapid, bullets, bullets2, frame, move, offset, running
+    for evnt in event.get():          
+            if evnt.type == QUIT:
+                running = False
+
+    keys = key.get_pressed()
+    newMove = -1   
+    ############ MOVING BATMAN ###############   
+    if keys[K_a]:
+        Boss = True  
+    if keys[K_LEFT] and BATMAN[X] > 540: # checking if batman's x is greater 540 
+        newMove = LEFT # making the newMove  = LEFT for animation
+        Dir = -1 # changing the direction of the player
+        BATMAN[X] -= 13 # subtracting 13 from the current X
+        for i in range(5):
+            aliensRect[i][0] +=13 # adding 13 to the current alien's X values
+
+    if keys[K_RIGHT] and BATMAN[X] < 4050:
+        newMove = RIGHT
+        Dir = 1
+        BATMAN[X] += 13
+        for i in range(5):
+            aliensRect[i][0] -=10
+
+    if keys[K_UP] and BATMAN[ONGROUND]: # checks if the player is on the ground
+        newMove = Jump
+        BATMAN[VY] = -10
+        BATMAN[ONGROUND]=False
+
+    if keys[K_SPACE]:
+        if Dir == 1:
+            if rapid < 10:
+                rapid+=1
+            if keys[K_SPACE] and rapid==10:
+                rapid = 0
+                VX = 10
+                VY1 = 0
+                bullets.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX,VY1])
+        elif Dir == -1:
+            if rapid < 10:
+                rapid+=1
+            if keys[K_SPACE] and rapid==10:
+                rapid = 0
+                VX1 = -10
+                VY2 = 0
+                bullets2.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX1,VY2])
+
+
+    BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
+    if BATMAN[Y] >= 650:
+       BATMAN[Y] = 650
+       BATMAN[VY] = 0
+       BATMAN[ONGROUND]=True
+    BATMAN[VY]+=.7     # add current speed to Y
+    ################################################################
+
+    ######## BATMAN PUNCH #######
+    if keys[K_b]:
+        newMove = Punch
+
+    elif newMove == -1:
+        frame = 0
+    ##############################
+
+    ########## ANIMATION FOR BATMAN ############
+    if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
+        frame = frame + 0.4 # adding 0.2 allows us to slow down the animation
+        if frame >= len(pics[move]):
+            frame = 1
+    elif newMove != -1:     # a move was selected
+        move = newMove      # make that our current move
+        frame = 1
+
+def move_Flash(FLASH):
+    global newMove3, frame3, offset, BATMAN, running, move3
+    for evnt in event.get():          
+            if evnt.type == QUIT:
+                running = False
+
+    keys = key.get_pressed()
+    #################### MOVING FLASH #######################
+    newMove3 = -1
+    if Boss == True:
+        if (BATMAN[X] + offset) > FLASH[X] and FLASH[X] < 4050:
+            newMove3 = RIGHT
+            FLASH[X] +=10
+
+        if (BATMAN[X] + offset) < FLASH[X] and FLASH[X] > 10:
+            newMove3 = LEFT
+            FLASH[X] -=10
+
+        if move3 == newMove3:     # 0 is a standing pose, so we want to skip over it when we are moving
+            frame3 = frame3 + 0.4 # adding 0.2 allows us to slow down the animation
+            if frame3 >= len(Epics[move2]):
+                frame3 = 1
+        elif newMove3 != -1:     # a move was selected
+            move3 = newMove3      # make that our current move
+            frame3 = 0
+
+def drawscene(screen,BATMAN):
+    global LEVEL1back, offset, batmobilepic, frame, frame2, frame3, batRect, aliensRect, FLASH, level, bullets, bullets2, bullet, bullet1, EhealthList, ehealList
+    offset = 540 - BATMAN[X]
+    if level == "1":
+        screen.blit(LEVEL1back,(offset,0))
+        screen.blit(batmobilepic,((50 + offset),622))
+    elif level == "2":
+        screen.blit(LEVEL2back,(offset,0))
+    draw.rect(screen,(130, 73, 0),(0,705,4050,15))
+    
+    ###### Blitting batman
+    pic = pics[move][int(frame)]
+    batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)      
+    draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],40,70),1)
+    draw.rect(screen,LightBLue,batRect,2)
+    screen.blit(pic, (540,BATMAN[Y]))
+    
+    ###### Blitting The ALiens
+    pic2 = Epics[move2][int(frame2)]
+    for i in range(5):
+        aliensRect[i].move(offset,0)
+        screen.blit(pic2,aliensRect[i])
+        draw.rect(screen,RED,aliensRect[i],2)
+    # print(offset,batRect.x,aliensRect[i],BATMAN[X])
+    
+    ######### BLitting FLash########
+    pic_3 = FlashPics[move3][int(frame3)]
+    pic3 = transform.scale(pic_3,(40,70))
+    Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
+    screen.blit(pic3,Flashrect)
+    draw.rect(screen,WHITE,Flashrect,2)
+
+    ############# MOVING THE BULLETS #############
+    for b in bullets[:]:
+        b[0]+=b[2]
+        b[1]+=b[3]
+
+        if max(b) > 1080 or min(b) < -0:
+            bullets.remove(b)
+
+    for b in bullets:
+        screen.blit(bullet,(int(b[0]),int(b[1])))
+
+    for o in bullets2[:]:
+        o[0]+=o[2]
+        o[1]+=o[3]
+
+    for i in bullets2:
+        screen.blit(bullet1,(int(i[0]),int(i[1])))
+    ##############################################
+    ######## Checking for collide with bullets and alien ###########
+    for m in range(5):
+        for i in bullets:
+            r = Rect(i)
+            if r.colliderect(aliensRect[m]): 
+                # print('alien killed')
+                del bullets[bullets.index(i)]
+                EhealthList[m] -=10
+                ehealList[m] = ehealList[m] * (EhealthList[m]/100)
+
+        for i in bullets2:
+            c = Rect(i)
+            if c.colliderect(aliensRect[m]): 
+                # print('alien killed')
+                del bullets2[bullets2.index(i)]
+                EhealthList[m] -=10
+                ehealList[m] = ehealList[m] * (EhealthList[m]/100)
+
+        if EhealthList[m] == 0:
+            aliensRect[m].top = 1500
+            print("Hello")
+
+    # print(Ehealth, eheal)            
+        if batRect.colliderect(aliensRect[m]):
+            pass   
+    enemyHealth()
+    health()      
+
+
+def moveAliens(aliensRect):
+    global newMove2, frame2, BATMAN, offset, HEALTH, heal, running, move2 
+    ############ MOVING THE ENEMY ###################
+    for evnt in event.get():          
+            if evnt.type == QUIT:
+                running = False
+
+    keys = key.get_pressed()
+    batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
+    for i in range(5):
+        newMove2 = -1
+        if (BATMAN[X] + offset) < aliensRect[i][0] and aliensRect[i][0] > 10: ## Checking if Batman's x is greater than alien's x
+            newMove2 = LEFT
+            eV=randint(1,7)
+            aliensRect[i][0] -= eV
+            
+        if (BATMAN[X] + offset) > aliensRect[i][0] and aliensRect[i][0] < 2090: ## Checking if Batman's x is less than the alien's x
+            newMove2 = RIGHT
+            eV=randint(1,7)
+            aliensRect[i][0] += eV
+        
+        if aliensRect[i].colliderect(batRect): ## Checking for collide between the aliens and Batman
+            newMove2 = -1
+            frame2 = 0
+            aliensRect[i][0] +=0
+            if HEALTH > 0:
+                HEALTH -=5
+                heal = int(heal * (HEALTH/100))
+
+    if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
+        frame2 = frame2 + 0.2 # adding 0.2 allows us to slow down the animation
+        if frame2 >= len(Epics[move2]):
+            frame2 = 1
+    elif newMove2 != -1:     # a move was selected
+        move2 = newMove2      # make that our current move
+        frame2 = 1     
+def myLevel1():
+    moveBatman(BATMAN)
+    moveAliens(aliensRect)
+    move_Flash(FLASH)
+    drawscene(screen,BATMAN)
+
+def myLevel2():
+    moveBatman(BATMAN)
+    drawscene(screen,BATMAN)
+    moveAliens(aliensRect)
+    
+def Game():
+    reset()
+    mixer.music.stop()
+    mixer.music.load(music_List[1])
+    mixer.music.play(-1)
+    running = True
+    myClock = time.Clock()
+    global level
+    while running:
+        for evnt in event.get():          
+            if evnt.type == QUIT:
+                running = False
+
+        keys = key.get_pressed()
+        if keys[K_b]:
+            level = "2"
+        mx, my = mouse.get_pos() 
+
+        if level == "1":
+            myLevel1()
+
+        if level == "2":
+            myLevel2()
+
+        display.update()
+        myClock.tick(25)
+        display.flip()
+    
+    return "menu"
 
 def health(): # This is the player health function
     draw.rect(screen,BLUE,(5,5,300,25),0)
@@ -128,249 +393,10 @@ def health(): # This is the player health function
     draw.rect(screen,LightBLue,(10,40,215,10),0)
     Gems = [Rect(5+x*40,45+20,35,15) for x in range(6)] ## This creates a row of rectangles 
     for i in range (len(Gems)):
-        draw.rect(screen,BLACK,Gems[i],2)
-
-def reset(): ## this function resets player position enemy position everytime the game restarts
-    global level, HEALTH, heal, Dir, BATMAN, aliens, aliensRect, aliensAlive, EhealthList, ehealList, FLASH, Boss
-    level = "1"
-    HEALTH = 100
-    heal = 290
-    Dir = 1
-    BATMAN = [540,650,0,True]  # Batmans position in the game
-    FLASH = [4050,650,0,True]
-    Boss = False
-
-    aliens = [[randint(1100,2000),650] for x in range(5)]
-    aliensRect = []
-    for i in range(5):
-        aliensRect.append(Rect(aliens[i][0],660,44,60))
-    ##pprint(aliens)
-    aliensAlive = []
-    dead = False
-    EhealthList = [100 for x in range(5)]
-    ehealList = [35 for x in range(5)]
-
-def Game():
-    global BATMAN, heal, HEALTH, ALIEN, move, dead, frame, Ecounter, rapid, music_List, bullets, bullets2, bullet1, bullet, move2, frame2, HEALTH, heal, bullets, Ehealth, eheal, Dir, hit, aliens, frame3, move3, FLASH, Boss
-    reset()
-    mixer.music.stop()
-    mixer.music.load(music_List[1])
-    mixer.music.play(-1)
-    running = True
-    myClock = time.Clock()
-    ## Loading all images
-    bullet = image.load("Bullet/bullet.png")
-    batmobile = image.load("images/batmobile.jpg")
-    batmobilepic = transform.scale(batmobile,(225,75))
-    bullet1 = transform.flip(bullet,True,False)
-    ###########################################
-
-    if level == "1":
-        LEVEL1back=image.load("images/Level1Back.png")
-
-    while running:
-
-        offset = 540 - BATMAN[X]
-        screen.blit(LEVEL1back,(offset,0))
-        screen.blit(batmobilepic,((50 + offset),622))
-        ###### Blitting batman
-        pic = pics[move][int(frame)]
-        batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)      
-        draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],40,70),1)
-        draw.rect(screen,LightBLue,batRect,2)
-        screen.blit(pic, (540,BATMAN[Y]))
-        ###### Blitting The ALiens
-        pic2 = Epics[move2][int(frame2)]
-        for i in range(5):
-            aliensRect[i].move(offset,0)
-            screen.blit(pic2,aliensRect[i])
-            draw.rect(screen,RED,aliensRect[i],2)
-        # print(offset,batRect.x,aliensRect[i],BATMAN[X])
-        ######### BLitting FLash########
-        print(frame3,move3)
-        pic_3 = FlashPics[move3][int(frame3)]
-        pic3 = transform.scale(pic_3,(40,70))
-        Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
-        screen.blit(pic3,Flashrect)
-        draw.rect(screen,WHITE,Flashrect,2)
-
-        for evnt in event.get():          
-            if evnt.type == QUIT:
-                running = False
-
-        keys = key.get_pressed()
-        newMove = -1   
-        ############ MOVING BATMAN ###############   
-        if keys[K_a]:
-            Boss = True  
-        if keys[K_LEFT] and BATMAN[X] > 540:
-            newMove = LEFT
-            Dir = -1
-            BATMAN[X] -= 13
-            for i in range(5):
-                aliensRect[i][0] +=10
-
-        if keys[K_RIGHT] and BATMAN[X] < 4050:
-            newMove = RIGHT
-            Dir = 1
-            BATMAN[X] += 13
-            for i in range(5):
-                aliensRect[i][0] -=10
-
-        if keys[K_UP] and BATMAN[ONGROUND]:
-            newMove = Jump
-            BATMAN[VY] = -10
-            BATMAN[ONGROUND]=False
-
-        if keys[K_SPACE]:
-            if Dir == 1:
-                if rapid < 10:
-                    rapid+=1
-                if keys[K_SPACE] and rapid==10:
-                    rapid = 0
-                    VX = 10
-                    VY1 = 0
-                    bullets.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX,VY1])
-            elif Dir == -1:
-                if rapid < 10:
-                    rapid+=1
-                if keys[K_SPACE] and rapid==10:
-                    rapid = 0
-                    VX1 = -10
-                    VY2 = 0
-                    bullets2.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX1,VY2])
-
-
-        BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
-        if BATMAN[Y] >= 650:
-           BATMAN[Y] = 650
-           BATMAN[VY] = 0
-           BATMAN[ONGROUND]=True
-        BATMAN[VY]+=.7     # add current speed to Y
-        ################################################################
-
-        ######## BATMAN PUNCH #######
-        if keys[K_b]:
-            newMove = Punch
-
-        elif newMove == -1:
-            frame = 0
-        ##############################
-
-        ########## ANIMATION FOR BATMAN ############
-        if move == newMove:     # 0 is a standing pose, so we want to skip over it when we are moving
-            frame = frame + 0.4 # adding 0.2 allows us to slow down the animation
-            if frame >= len(pics[move]):
-                frame = 1
-        elif newMove != -1:     # a move was selected
-            move = newMove      # make that our current move
-            frame = 1
-
-        mx, my = mouse.get_pos() 
-
-        ############ MOVING THE ENEMY ###################
-        for i in range(5):
-
-            newMove2 = -1
-            if (BATMAN[X]+offset) < aliensRect[i][0] and aliensRect[i][0] > 10: ## Checking if Batman's x is greater than alien's x
-                newMove2 = LEFT
-                eV=randint(1,7)
-                aliensRect[i][0] -= eV
-                
-            if (BATMAN[X] + offset) > aliensRect[i][0] and aliensRect[i][0] < 2090: ## Checking if Batman's x is less than the alien's x
-                newMove2 = RIGHT
-                eV=randint(1,7)
-                aliensRect[i][0] += eV
-            
-            if aliensRect[i].colliderect(batRect): ## Checking for collide between the aliens and Batman
-                newMove2 = -1
-                frame2 = 0
-                aliensRect[i][0] +=0
-                if HEALTH > 0:
-                    HEALTH -=5
-                    heal = int(heal * (HEALTH/100))
-
-        if move2 == newMove2:     # 0 is a standing pose, so we want to skip over it when we are moving
-            frame2 = frame2 + 0.2 # adding 0.2 allows us to slow down the animation
-            if frame2 >= len(Epics[move2]):
-                frame2 = 1
-        elif newMove2 != -1:     # a move was selected
-            move2 = newMove2      # make that our current move
-            frame2 = 1     
-        ##########################################################
-
-        #################### MOVING FLASH #######################
-        newMove3 = -1
-        if Boss == True:
-            if (BATMAN[X] + offset) > FLASH[X] and FLASH[X] < 4050:
-                newMove3 = RIGHT
-                FLASH[X] +=20
-
-            if (BATMAN[X] + offset) < FLASH[X] and FLASH[X] > 10:
-                newMove3 = LEFT
-                FLASH[X] -=20
-
-            if move3 == newMove3:     # 0 is a standing pose, so we want to skip over it when we are moving
-                frame3 = frame3 + 0.4 # adding 0.2 allows us to slow down the animation
-                if frame3 >= len(Epics[move2]):
-                    frame3 = 1
-            elif newMove3 != -1:     # a move was selected
-                move3 = newMove3      # make that our current move
-                frame3 = 0 
-        ############# MOVING THE BULLETS #############
-        for b in bullets[:]:
-            b[0]+=b[2]
-            b[1]+=b[3]
-
-            if max(b) > 1080 or min(b) < -0:
-                bullets.remove(b)
-
-        for b in bullets:
-            screen.blit(bullet,(int(b[0]),int(b[1])))
-
-        for o in bullets2[:]:
-            o[0]+=o[2]
-            o[1]+=o[3]
-
-        for i in bullets2:
-            screen.blit(bullet1,(int(i[0]),int(i[1])))
-        ##############################################
-        ######## Checking for collide with bullets and alien ###########
-        for m in range(5):
-            for i in bullets:
-                r = Rect(i)
-                if r.colliderect(aliensRect[m]): 
-                    # print('alien killed')
-                    del bullets[bullets.index(i)]
-                    EhealthList[m] -=10
-                    ehealList[m] = ehealList[m] * (EhealthList[m]/100)
-
-            for i in bullets2:
-                c = Rect(i)
-                if c.colliderect(aliensRect[m]): 
-                    # print('alien killed')
-                    del bullets2[bullets2.index(i)]
-                    EhealthList[m] -=10
-                    ehealList[m] = ehealList[m] * (EhealthList[m]/100)
-
-        # print(Ehealth, eheal)            
-            if batRect.colliderect(aliensRect[m]):
-                pass         
-
-            if EhealthList[m] == 0:
-                aliensRect[m].top = 1500
-
-        ################################################################
-        enemyHealth()
-        health()
-        display.update()
-        myClock.tick(25)
-        display.flip()
-    
-    return "menu"
+        draw.rect(screen,WHITE,Gems[i],2)
 
 def enemyHealth():
-    global Ehealth, eheal, hit
+    global ehealList
     for i in range(5):
         draw.rect(screen,RED,(aliensRect[i][0],aliensRect[i][1]-20,35,5),0)
         draw.rect(screen,GREEN,(aliensRect[i][0],aliensRect[i][1]-20,ehealList[i],5),0)
@@ -391,11 +417,10 @@ Epics.append(moveEnemy("alien",1,7))# RIGHT
 Epics.append(moveEnemy("alien",8,14))# LEFT
 
 FlashPics = []
-# FlashPics.append(moveFlash("FlashRun",0,1))# Right 
-# FlashPics.append(moveFlash("FlashRunLeft",0,1))# Left
-FlashPics.append(moveFlash("FlashPunch",0,11)) # Punch Right
-FlashPics.append(moveFlash("FlashPunchLeft",0,11))# Punch Left
-FlashPics.append(moveFlash("FlashDead",0,5))
+FlashPics.append(moveFlash("FlashRun",0,6))# Right 
+FlashPics.append(moveFlash("FlashRunLeft",0,6))# Left
+FlashPics.append(moveFlash("FlashPunch",0,4)) # Punch Right
+FlashPics.append(moveFlash("FlashPunchLeft",0,4))# Punch Left
 
 frame = 0     # current frame within the move
 move = 0      # current move being performed (right, down, up, left)
@@ -512,6 +537,6 @@ while page != "exit":
     if page == "story":
         page = story()    
     if page == "credits":
-        page = credit()    
-    
+        page = credit()
+
 quit()
