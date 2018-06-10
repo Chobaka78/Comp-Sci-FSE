@@ -136,8 +136,6 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
     keys = key.get_pressed()
     newMove = -1   
     ############ MOVING BATMAN ###############   
-    if keys[K_a]:
-        Boss = True  
     if keys[K_LEFT] and BATMAN[X] > 540: # checking if batman's x is greater 540 
         newMove = LEFT # making the newMove  = LEFT for animation
         Dir = -1 # changing the direction of the player
