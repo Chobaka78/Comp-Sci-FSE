@@ -47,14 +47,14 @@ arialFont=font.SysFont("Arial",38)
 bullets = []
 bullets2 = []
 rapid = 10
-music_List = ["Music/Game music 1.mp3", "Music/Game music 2.mp3", "Music/Game music.mp3", "Music/StoryMusic.mp3"] # This is the music list 
+music_List = ["Music/Menu music.mp3", "Music/Level1.wav", "Music/How to music.mp3", "Music/StoryMusic.mp3", "Music/Level2 music.mp3", "Music/Ending credits.mp3"] # This is the music list 
 enemy = 5
 XP = 0
 
+BATMAN = [540,650,0,True]  # Batmans position in the game
 HEALTH = 100 ## health of the player orignally = 100
 heal = 290 ## this is the width of the players health bar
 Dir = 1 # this is the direction used in bullets and bullets2 list
-BATMAN = [540,650,0,True]  # Batmans position in the game
 FLASH = [4050,650,0,True]  # This is FLASH's position in the game
 FLASH_HEALTH = 150
 Boss = False ## This is a temporary boolean var to check if boss spawns or not
@@ -127,7 +127,7 @@ def moveFlash(name,start,end): # Moving for flash
     return move3 
 
 def moveBatman(BATMAN): # This function deals with all of batman's movements
-    global Boss, newMove, Dir, aliensRect, rapid, bullets, bullets2, frame, move, offset, running, enemy
+    global Boss, newMove, Dir, aliensRect, rapid, bullets, bullets2, frame, move, offset, running
     for evnt in event.get():          
             if evnt.type == QUIT:
                 running = False
@@ -208,13 +208,18 @@ def move_Flash(FLASH):
     #################### MOVING FLASH #######################
     newMove3 = -1
     if Boss == True:
-        if (BATMAN[X] + offset) > FLASH[X] and FLASH[X] < 4050:
+
+        if (BATMAN[X]) < FLASH[X] and FLASH[X] > 540:
+            newMove3 = LEFT
+            FLASH[X] -=10
+
+        elif (BATMAN[X]) > FLASH[X] and FLASH[X] < 4050:
             newMove3 = RIGHT
             FLASH[X] +=10
 
-        if (BATMAN[X] + offset) < FLASH[X] and FLASH[X] > 10:
-            newMove3 = LEFT
-            FLASH[X] -=10
+        else:
+            newMove3 = -1
+            frame3 = 0
 
         if move3 == newMove3:     # 0 is a standing pose, so we want to skip over it when we are moving
             frame3 = frame3 + 0.4 # adding 0.2 allows us to slow down the animation
@@ -387,6 +392,9 @@ def Game():
     return "menu"
 
 def Game2():
+    mixer.music.stop()
+    mixer.music.load(music_List[4])
+    mixer.music.play(-1)
     myClock = time.Clock()
     running = True
     while running:
@@ -497,12 +505,11 @@ def instructions():
 def credit():
     global music_List
     mixer.music.stop()
-    mixer.music.load(music_List[0])
+    mixer.music.load(music_List[5])
     mixer.music.play()
     running = True
     cred = image.load("images/credits.png")
     cred = transform.smoothscale(cred, screen.get_size())
-    buttonRect1 = Rect(940,660,130,50)
     screen.blit(cred,(0,0))
     while running:
         for evnt in event.get():          
@@ -513,14 +520,6 @@ def credit():
         mx,my = mouse.get_pos()
         mb = mouse.get_pressed()
 
-        if buttonRect1.collidepoint(mx,my):
-            draw.rect(screen,BLUE,buttonRect1,2)
-        else:
-            draw.rect(screen,WHITE,buttonRect1)
-        if mb[0] == 1 and buttonRect1.collidepoint(mx,my):
-            return "game"
-
-        screen.blit(cont_button,(940,660)) # blitting the button
         display.flip()
     return "menu"
 
