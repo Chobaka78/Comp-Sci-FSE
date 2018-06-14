@@ -48,7 +48,7 @@ arialFont=font.SysFont("Arial",38)
 bullets = []
 bullets2 = []
 rapid = 10
-music_List = ["Music/Menu music.mp3", "Music/Level1.wav", "Music/How to music.mp3", "Music/StoryMusic.mp3", "Music/Level2 music.mp3", "Music/Ending credits.mp3"] # This is the music list 
+music_List = ["Music/Menu music.mp3", "Music/Level1.wav", "Music/How to music.mp3", "Music/StoryMusic.mp3", "Music/Level2 music.mp3", "Music/Ending credits.mp3", "Music/Level3 music.mp3"] # This is the music list 
 enemy = 10
 XP = 0
 fill = [2,2,2,2,2]
@@ -605,7 +605,7 @@ def Game2():
 
 def Game3():
     mixer.music.stop()
-    mixer.music.load(music_List[4])
+    mixer.music.load(music_List[6])
     mixer.music.play(-1)
     myClock = time.Clock()
     running = True
