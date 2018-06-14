@@ -35,6 +35,7 @@ firstBack = image.load("images/firstBack.png")
 cont_button = image.load("images/continue-button.png")
 LEVEL1back=image.load("images/Level1Back.png")
 LEVEL2back=image.load("images/Level2Back.png")
+LEVEL3back=image.load("images/Level3Back.png")
 bullet = image.load("Bullet/bullet.png")
 batmobile = image.load("images/batmobile.jpg")
 batmobilepic = transform.scale(batmobile,(225,75))
@@ -283,19 +284,21 @@ def move_Iron(Iron_man):
 
 def drawscene(screen,BATMAN,level):
 
-    global LEVEL1back, LEVEL2back, offset, batmobilepic, frame, move, frame2, move2, frame3, move3, FLASH, Flashrect, aliensRect, batRect, aliens, Iron_man, IronRect, move4, frame4
+    global LEVEL1back, LEVEL2back, LEVEL3back, offset, batmobilepic, frame, move, frame2, move2, frame3, move3, FLASH, Flashrect, aliensRect, batRect, aliens, Iron_man, IronRect, move4, frame4
     offset = 540 - BATMAN[X]
     if level == "1":
         screen.blit(LEVEL1back,(offset,0))
         screen.blit(batmobilepic,((50 + offset),622))
     elif level == "2":
         screen.blit(LEVEL2back,(offset,0))
-        print(aliensRect)
         pic2 = Epics[move2][int(frame2)]
-        for i in range(10):
+        for i in range(20):
             aliensRect[i].move(offset,0)
             screen.blit(pic2,aliensRect[i])
             draw.rect(screen,RED,aliensRect[i],2)
+
+    elif level == "3":
+        screen.blit(LEVEL3back,(offset,0))
 
     draw.rect(screen,(130, 73, 0),(0,705,4050,15))
     
@@ -315,17 +318,16 @@ def drawscene(screen,BATMAN,level):
     # print(offset,batRect.x,aliensRect[i],BATMAN[X])
     ######### BLitting FLash########
     Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
+    IronRect = Rect((Iron_man[X] + offset),Iron_man[Y],45,70)
     if Boss == True and level == "1":
         pic_3 = FlashPics[move3][int(frame3)]
         pic3 = transform.scale(pic_3,(40,70))
-        Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
         screen.blit(pic3,Flashrect)
         draw.rect(screen,WHITE,Flashrect,2)
 
     elif Boss == True and level == "2":
         pic_4 = IronPics[move4][int(frame4)]
         pic4 = transform.scale(pic_4,(45,70))
-        IronRect = Rect((Iron_man[X] + offset),Iron_man[Y],45,70)
         screen.blit(pic4,IronRect)
         draw.rect(screen,WHITE,IronRect,2)
 
@@ -386,16 +388,17 @@ def Game():
     mixer.music.play(-1)
     running = True
     myClock = time.Clock()
-    global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, FLASH_HEALTH, XP, Flashrect, BATMAN, HEALTH, heal, heal2, Energy, energy, HEALTH_Constant, fill
+    global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, FLASH_HEALTH, XP, Flashrect, BATMAN, HEALTH, heal, heal2, Energy, energy, HEALTH_Constant, fill, enemy
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     while running:
+        print(dead_counter,len(aliensRect),enemy)
         for evnt in event.get():          
             if evnt.type == QUIT:
                 running = False
         ##############################################
         ######## Checking for collide with bullets and alien ###########
         keys = key.get_pressed()
-        for m in range(enemy):
+        for m in range(10):
 
             if aliensRect[m].colliderect(batRect): ## Checking for collide between the aliens and Batman
                 newMove2 = -1
@@ -417,6 +420,7 @@ def Game():
                 FLASH_HEALTH -=100
                 Energy -= 25
                 energy = energy * (Energy/100)
+
             for i in bullets:
                 r = Rect(i)
                 if r.colliderect(aliensRect[m]): 
@@ -464,8 +468,9 @@ def Game():
                     print("boss False")
                     Boss = False
         if FLASH_HEALTH <=0 and Boss == False:
+            enemy = 20
             aliens=[]
-            aliens = [[randint(1100,4000),650] for x in range(20)] # 2d list with random x values
+            aliens = [[randint(1100,4000),650] for x in range(enemy)] # 2d list with random x values
             aliensRect = [] # this is going to be a 2d list that will hold the rects
             for i in range(enemy):
                 aliensRect.append(Rect(aliens[i][0],660,44,60)) ## taking the x value and appending y,w,h values
@@ -473,8 +478,9 @@ def Game():
             ehealList = [35 for x in range(enemy)] # this is the width of the alien health bar
             BATMAN = [540,650,0,True]  # Batmans position in the game
             heal = 400
-            HEALTH = 500 ## health of the player orignally = 100
-            HEALTH_Constant = 500
+            HEALTH = 200 ## health of the player orignally = 100
+            HEALTH_Constant = 200
+            Energy = 100
             fill[0] = 0
             dead_counter = 0
             return "game2"
@@ -492,7 +498,118 @@ def Game2():
     mixer.music.play(-1)
     myClock = time.Clock()
     running = True
-    global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant
+    global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, IronRect, Iron_man, Iron_Health, Energy, BATMAN, energy, enemy
+    batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
+    while running:
+        print(dead_counter,len(aliensRect),enemy)
+        for evnt in event.get():          
+            if evnt.type == QUIT:
+                return "menu"
+
+        keys = key.get_pressed()
+        for m in range(enemy):
+
+            if aliensRect[m].colliderect(batRect): ## Checking for collide between the aliens and Batman
+                newMove2 = -1
+                frame2 = 0
+                aliensRect[m][0] +=0
+                if HEALTH > 0:
+                    HEALTH -=5
+                    heal = int(heal * (HEALTH/HEALTH_Constant))
+
+            if  keys[K_b] and batRect.colliderect(aliensRect[m]) and Energy > 0:
+                EhealthList[m] -= 100
+                ehealList[m] = ehealList[m] * (EhealthList[m]/100)
+                Energy -= 25
+                energy = energy * (Energy/100)
+                if EhealthList[m] <=0:
+                    dead_counter += 1
+                    XP +=100
+
+            if keys[K_b] and Boss == True and batRect.colliderect(IronRect) and Energy > 0:
+                Iron_Health -=100
+                Energy -= 25
+                energy = energy * (Energy/100)
+
+            for i in bullets:
+                r = Rect(i)
+                if r.colliderect(aliensRect[m]): 
+                    # print('alien killed')
+                    del bullets[bullets.index(i)]
+                    EhealthList[m] -= 100
+                    # print(EhealthList)
+                    ehealList[m] = ehealList[m] * (EhealthList[m]/100)
+                    if EhealthList[m] <= 0:
+                        dead_counter += 1
+                        XP += 100
+
+                if Boss == True:
+                    if r.colliderect(IronRect):
+                        del bullets[bullets.index(i)]
+                        Iron_Health -= 100
+
+            for i in bullets2:
+                c = Rect(i)
+                if c.colliderect(aliensRect[m]): 
+                    # print('alien killed')
+                    del bullets2[bullets2.index(i)]
+                    EhealthList[m] -=100
+                    ehealList[m] = ehealList[m] * (EhealthList[m]/100)
+                    if EhealthList[m] <= 0:
+                        dead_counter += 1
+                        XP += 100
+
+                if Boss == True:
+                    if c.colliderect(IronRect):
+                        del bullets2[bullets2.index(i)]
+                        Iron_Health -= 100
+
+            if EhealthList[m] == 0:
+                aliensRect[m].top = 1500
+            if dead_counter == len(aliensRect):
+                Boss = True
+            if batRect.colliderect(aliensRect[m]):
+                pass
+
+            if Boss == True:
+                if Iron_Health <= 0:
+                    Iron_man[Y] = 1500
+                    XP += 500
+                    dead_counter = 0
+                    print("boss False")
+                    Boss = False
+        if Iron_Health <=0 and Boss == False:
+            enemy = 30
+            aliens=[]
+            aliens = [[randint(1100,4000),650] for x in range(enemy)] # 2d list with random x values
+            aliensRect = [] # this is going to be a 2d list that will hold the rects
+            for i in range(enemy):
+                aliensRect.append(Rect(aliens[i][0],660,44,60)) ## taking the x value and appending y,w,h values
+            EhealthList = [100 for x in range(enemy)] # this is the aliens health starting at 100
+            ehealList = [35 for x in range(enemy)] # this is the width of the alien health bar
+            BATMAN = [540,650,0,True]  # Batmans position in the game
+            heal = 400
+            HEALTH = 300 ## health of the player orignally = 100
+            HEALTH_Constant = 300
+            Energy = 100
+            fill[1] = 0
+            dead_counter = 0
+            return "game3"
+
+        moveBatman(BATMAN)
+        moveAliens(aliensRect)
+        move_Iron(Iron_man)
+        drawscene(screen,BATMAN,"2")
+        myClock.tick(25)
+    return "menu"
+
+def Game3():
+    mixer.music.stop()
+    mixer.music.load(music_List[4])
+    mixer.music.play(-1)
+    myClock = time.Clock()
+    running = True
+    global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, Energy, BATMAN, enemy, energy
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     while running:
         #print("Hello from l2")
@@ -511,12 +628,19 @@ def Game2():
                     HEALTH -=5
                     heal = int(heal * (HEALTH/HEALTH_Constant))
 
-            if  keys[K_b] and batRect.colliderect(aliensRect[m]):
+            if  keys[K_b] and batRect.colliderect(aliensRect[m]) and Energy > 0:
                 EhealthList[m] -= 100
                 ehealList[m] = ehealList[m] * (EhealthList[m]/100)
+                Energy -= 25
+                energy = energy * (Energy/100)
                 if EhealthList[m] <=0:
                     dead_counter += 1
                     XP +=100
+
+            # if keys[K_b] and Boss == True and batRect.colliderect(IronRect) and Energy > 0:
+            #     Iron_Health -=100
+            #     Energy -= 25
+            #     energy = energy * (Energy/100)
 
             for i in bullets:
                 r = Rect(i)
@@ -530,6 +654,11 @@ def Game2():
                         dead_counter += 1
                         XP += 100
 
+                # if Boss == True:
+                #     if r.colliderect(IronRect):
+                #         del bullets[bullets.index(i)]
+                #         Iron_Health -= 100
+
             for i in bullets2:
                 c = Rect(i)
                 if c.colliderect(aliensRect[m]): 
@@ -541,6 +670,11 @@ def Game2():
                         dead_counter += 1
                         XP += 100
 
+                # if Boss == True:
+                #     if c.colliderect(IronRect):
+                #         del bullets2[bullets2.index(i)]
+                #         Iron_Health -= 100
+
             if EhealthList[m] == 0:
                 aliensRect[m].top = 1500
             if dead_counter == len(aliensRect):
@@ -548,12 +682,35 @@ def Game2():
             if batRect.colliderect(aliensRect[m]):
                 pass
 
+            # if Boss == True:
+            #     if Iron_Health <= 0:
+            #         Iron_man[Y] = 1500
+            #         XP += 500
+            #         dead_counter = 0
+            #         print("boss False")
+            #         Boss = False
+        # if Iron_Health <=0 and Boss == False:
+        #     aliens=[]
+        #     aliens = [[randint(1100,4000),650] for x in range(30)] # 2d list with random x values
+        #     aliensRect = [] # this is going to be a 2d list that will hold the rects
+        #     for i in range(30):
+        #         aliensRect.append(Rect(aliens[i][0],660,44,60)) ## taking the x value and appending y,w,h values
+        #     EhealthList = [100 for x in range(30)] # this is the aliens health starting at 100
+        #     ehealList = [35 for x in range(30)] # this is the width of the alien health bar
+        #     BATMAN = [540,650,0,True]  # Batmans position in the game
+        #     heal = 400
+        #     HEALTH = 300 ## health of the player orignally = 100
+        #     HEALTH_Constant = 300
+        #     Energy = 100
+        #     fill[2] = 0
+        #     dead_counter = 0
+        #     return "game3"
+
         moveBatman(BATMAN)
         moveAliens(aliensRect)
-        move_Iron(Iron_man)
-        drawscene(screen,BATMAN,"2")
+        drawscene(screen,BATMAN,"3")
         myClock.tick(25)
-    return "menu"
+    return "menu"    
 
 def health(): # This is the player health function
     global fill, heal, energy
@@ -719,6 +876,9 @@ while page != "exit":
     if page == "game2":
         print("starting level 2")
         page = Game2()
+    if page == "game3":
+        print("starting level 2")
+        page = Game3()
     if page == "instructions":
         page = instructions()    
     if page == "story":
