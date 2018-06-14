@@ -47,7 +47,7 @@ arialFont=font.SysFont("Arial",38)
 bullets = []
 bullets2 = []
 rapid = 10
-music_List = ["Music/Game music 1.mp3", "Music/Game music 2.mp3", "Music/Game music.mp3", "Music/StoryMusic.mp3"] # This is the music list 
+music_List = ["Music/Menu music.mp3", "Music/Level1.wav", "Music/How to music.mp3", "Music/StoryMusic.mp3", "Music/Level2 music.mp3", "Music/Ending credits.mp3"] # This is the music list 
 XP = 0
 HEALTH = 100 ## health of the player orignally = 100
 heal = 290 ## this is the width of the players health bar
