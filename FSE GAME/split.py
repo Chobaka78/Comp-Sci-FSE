@@ -1,6 +1,6 @@
 from pygame import *
 init()
-BASE = "SupermanPunchLeft/SupermanPunchLeft"
+BASE = "FlashJump/FlashJump"
 pic1 = image.load(BASE+".png").convert(32,SRCALPHA)
 
 wid,hi = pic1.get_size()

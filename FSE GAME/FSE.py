@@ -60,6 +60,7 @@ heal = 400 ## this is the width of the players health bar
 Energy = 100 ## this is the players energy for special moves
 energy = 215
 Dir = 1 # this is the direction used in bullets and bullets2 list
+EDir = -1
 FLASH = [4050,650,0,True]  # This is FLASH's position in the game
 FLASH_HEALTH = 150
 Iron_man = [4050,650,0,True]
@@ -165,7 +166,6 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
             aliensRect[i][0] -=10
 
     if keys[K_UP] and BATMAN[ONGROUND]: # checks if the player is on the ground
-        newMove = Jump
         BATMAN[VY] = -10
         BATMAN[ONGROUND]=False
 
@@ -217,7 +217,7 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
         frame = 1
 
 def move_Flash(FLASH):
-    global newMove3, frame3, offset, BATMAN, running, move3, batRect, Dir, HEALTH, heal
+    global newMove3, frame3, offset, BATMAN, running, move3, batRect, Dir, HEALTH, heal, EDir
     for evnt in event.get():          
             if evnt.type == QUIT:
                 running = False
@@ -227,15 +227,23 @@ def move_Flash(FLASH):
     newMove3 = -1
     if Boss == True:
 
-        if (BATMAN[X]) < FLASH[X] and FLASH[X] > 540:
+        if (BATMAN[X]) < FLASH[X] and FLASH[X] > 540 and not Flashrect.colliderect(batRect):
             newMove3 = LEFT
-            Dir = -1
             FLASH[X] -=10
 
-        elif (BATMAN[X]) > FLASH[X] and FLASH[X] < 4050:
+        elif (BATMAN[X]) > FLASH[X] and FLASH[X] < 4050 and not Flashrect.colliderect(batRect):
             newMove3 = RIGHT
-            Dir = 1
+            EDir = 1
             FLASH[X] +=10
+
+        elif Flashrect.colliderect(batRect) and EDir == -1:
+            newMove3 = Punchleft
+            EDir = -1
+            FLASH[X] += 0
+
+        elif Flashrect.colliderect(batRect) and EDir == 1:
+            newMove3 = Punch
+            FLASH[X] += 0
 
         else:
             newMove3 = -1
@@ -318,7 +326,7 @@ def drawscene(screen,BATMAN,level):
     # print(offset,batRect.x,aliensRect[i],BATMAN[X])
     ######### BLitting FLash########
     Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
-    IronRect = Rect((Iron_man[X] + offset),Iron_man[Y],45,70)
+    IronRect = Rect((Iron_man[X] + offset),Iron_man[Y],50,90)
     if Boss == True and level == "1":
         pic_3 = FlashPics[move3][int(frame3)]
         pic3 = transform.scale(pic_3,(40,70))
@@ -327,7 +335,7 @@ def drawscene(screen,BATMAN,level):
 
     elif Boss == True and level == "2":
         pic_4 = IronPics[move4][int(frame4)]
-        pic4 = transform.scale(pic_4,(45,70))
+        pic4 = transform.scale(pic_4,(50,90))
         screen.blit(pic4,IronRect)
         draw.rect(screen,WHITE,IronRect,2)
 
@@ -364,7 +372,7 @@ def moveAliens(aliensRect):
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     for i in range(enemy):
         newMove2 = -1
-        if (BATMAN[X] + offset) < aliensRect[i][0] and aliensRect[i][0] > 10: ## Checking if Batman's x is greater than alien's x
+        if (BATMAN[X] + offset) < aliensRect[i][0] and aliensRect[i][0] > 540: ## Checking if Batman's x is greater than alien's x
             newMove2 = LEFT
             eV=randint(1,7)
             aliensRect[i][0] -= eV
@@ -388,16 +396,18 @@ def Game():
     mixer.music.play(-1)
     running = True
     myClock = time.Clock()
-    global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, FLASH_HEALTH, XP, Flashrect, BATMAN, HEALTH, heal, heal2, Energy, energy, HEALTH_Constant, fill, enemy
+    global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, FLASH_HEALTH, XP, Flashrect, BATMAN, HEALTH, heal, heal2, Energy, energy, HEALTH_Constant, fill, enemy, Flashrect
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
+    Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
     while running:
-        print(dead_counter,len(aliensRect),enemy)
+        print(dead_counter,len(aliensRect),enemy,Dir)
         for evnt in event.get():          
             if evnt.type == QUIT:
                 running = False
         ##############################################
         ######## Checking for collide with bullets and alien ###########
         keys = key.get_pressed()
+
         for m in range(10):
 
             if aliensRect[m].colliderect(batRect): ## Checking for collide between the aliens and Batman
@@ -501,7 +511,7 @@ def Game2():
     global aliens,dead_counter, batRect, aliensRect, FLASH, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, IronRect, Iron_man, Iron_Health, Energy, BATMAN, energy, enemy
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     while running:
-        print(dead_counter,len(aliensRect),enemy)
+        print(dead_counter,len(aliensRect),enemy,Dir)
         for evnt in event.get():          
             if evnt.type == QUIT:
                 return "menu"
@@ -741,14 +751,12 @@ def display_XP():
 
 RIGHT = 0 # These are just the indices of the moves
 LEFT = 1
-Jump = 2
-Punch = 3
-Punchleft = 4
+Punch = 2
+Punchleft = 3
 
 pics = [] #2d list
 pics.append(makeMove("Run",0,16))# RIGHT
 pics.append(makeMove("RunLeft",0,16))# LEFT
-pics.append(makeMove("Jump",0,4))# Jumping
 pics.append(makeMove("Punch",0,11))# Punching
 pics.append(makeMove("Punchleft",0,11))# Punching
 
