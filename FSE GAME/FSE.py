@@ -251,7 +251,7 @@ def move_Flash(FLASH):
 
         if move3 == newMove3:     # 0 is a standing pose, so we want to skip over it when we are moving
             frame3 = frame3 + 0.4 # adding 0.2 allows us to slow down the animation
-            if frame3 >= len(Epics[move2]):
+            if frame3 >= len(FlashPics[move3]):
                 frame3 = 1
         elif newMove3 != -1:     # a move was selected
             move3 = newMove3      # make that our current move
@@ -284,7 +284,7 @@ def move_Iron(Iron_man):
 
         if move4 == newMove4:     # 0 is a standing pose, so we want to skip over it when we are moving
             frame4 = frame4 + 0.4 # adding 0.2 allows us to slow down the animation
-            if frame4 >= len(Epics[move2]):
+            if frame4 >= len(Epics[move4]):
                 frame4 = 1
         elif newMove4 != -1:     # a move was selected
             move4 = newMove4      # make that our current move
@@ -328,6 +328,7 @@ def drawscene(screen,BATMAN,level):
     Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
     IronRect = Rect((Iron_man[X] + offset),Iron_man[Y],50,90)
     if Boss == True and level == "1":
+        print(move3,int(frame3))
         pic_3 = FlashPics[move3][int(frame3)]
         pic3 = transform.scale(pic_3,(40,70))
         screen.blit(pic3,Flashrect)
@@ -372,12 +373,12 @@ def moveAliens(aliensRect):
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     for i in range(enemy):
         newMove2 = -1
-        if (BATMAN[X] + offset) < aliensRect[i][0] and aliensRect[i][0] > 540: ## Checking if Batman's x is greater than alien's x
+        if (BATMAN[X] + offset) < aliensRect[i][0]: ## Checking if Batman's x is greater than alien's x
             newMove2 = LEFT
             eV=randint(1,7)
             aliensRect[i][0] -= eV
             
-        if (BATMAN[X] + offset) > aliensRect[i][0] and aliensRect[i][0] < 2090: ## Checking if Batman's x is less than the alien's x
+        if (BATMAN[X] + offset) > aliensRect[i][0]: ## Checking if Batman's x is less than the alien's x
             newMove2 = RIGHT
             eV=randint(1,7)
             aliensRect[i][0] += eV
