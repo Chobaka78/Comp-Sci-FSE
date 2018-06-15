@@ -48,7 +48,7 @@ arialFont=font.SysFont("Arial",38)
 bullets = []
 bullets2 = []
 rapid = 10
-music_List = ["Music/Menu music.mp3", "Music/Level1.wav", "Music/How to music.mp3", "Music/StoryMusic.mp3", "Music/Level2 music.mp3", "Music/Ending credits.mp3", "Music/Level3 music.mp3"] # This is the music list 
+music_List = ["Music/Menu music.mp3", "Music/Level1.mp3", "Music/How to music.mp3", "Music/StoryMusic.mp3", "Music/Level2 music.mp3", "Music/Ending credits.mp3", "Music/Level3 music.mp3"] # This is the music list 
 enemy = 10
 XP = 0
 fill = [2,2,2,2,2]
@@ -154,6 +154,7 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
     if keys[K_LEFT] and BATMAN[X] > 540: # checking if batman's x is greater 540 
         newMove = LEFT # making the newMove  = LEFT for animation
         Dir = -1 # changing the direction of the player
+        EDir = -1
         BATMAN[X] -= 13 # subtracting 13 from the current X
         for i in range(enemy):
             aliensRect[i][0] +=13 # adding 13 to the current alien's X values
@@ -161,6 +162,7 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
     if keys[K_RIGHT] and BATMAN[X] < 4050:
         newMove = RIGHT
         Dir = 1
+        EDir = 1
         BATMAN[X] += 13
         for i in range(enemy):
             aliensRect[i][0] -=10
@@ -217,6 +219,7 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
         frame = 1
 
 def move_Flash(FLASH):
+    myClock = time.Clock()
     global newMove3, frame3, offset, BATMAN, running, move3, batRect, Dir, HEALTH, heal, EDir
     for evnt in event.get():          
             if evnt.type == QUIT:
@@ -229,6 +232,7 @@ def move_Flash(FLASH):
 
         if (BATMAN[X]) < FLASH[X] and FLASH[X] > 540 and not Flashrect.colliderect(batRect):
             newMove3 = LEFT
+            EDir = -1
             FLASH[X] -=10
 
         elif (BATMAN[X]) > FLASH[X] and FLASH[X] < 4050 and not Flashrect.colliderect(batRect):
