@@ -38,6 +38,9 @@ LEVEL2back=image.load("images/Level2Back.png")
 LEVEL3back=image.load("images/Level3Back.png")
 bullet = image.load("Bullet/bullet.png")
 batmobile = image.load("images/batmobile.jpg")
+bandage = image.load("images/bandage.png")
+energyPic = image.load("images/Energy.png")
+
 batmobilepic = transform.scale(batmobile,(225,75))
 bullet1 = transform.flip(bullet,True,False)
 backgroundRect=Rect(0,0,1080,720)
@@ -58,6 +61,7 @@ HEALTH = 100 ## health of the player orignally = 100
 HEALTH_Constant = 100
 heal = 400 ## this is the width of the players health bar
 Energy = 100 ## this is the players energy for special moves
+Energy_Constant = 100
 energy = 215
 Dir = 1 # this is the direction used in bullets and bullets2 list
 EDir = -1
@@ -66,6 +70,7 @@ FLASH_HEALTH = 150
 Iron_man = [4050,650,0,True]
 Iron_Health = 250
 Boss = False ## This is a temporary boolean var to check if boss spawns or not
+Diff = HEALTH_Constant - HEALTH
 ############## MAKING THE ALIEN'S RECTS #################################
 aliens = [[randint(1100,4000),650] for x in range(enemy)] # 2d list with random x values
 aliensRect = [] # this is going to be a 2d list that will hold the rects
@@ -74,6 +79,13 @@ for i in range(enemy):
 EhealthList = [100 for x in range(enemy)] # this is the aliens health starting at 100
 ehealList = [35 for x in range(enemy)] # this is the width of the alien health bar
 dead_counter = 0 ## this is the enemy dead counter checks how many are dead
+
+plats = [Rect(1000,635,100,5),Rect(1500,635,100,5),Rect(1250,570,80,5),Rect(1010,500,80,5),Rect(1510,500,80,5),Rect(2000,635,100,5),Rect(2500,635,100,5),Rect(2250,570,100,5),Rect(2010,500,80,5),Rect(2510,500,80,5),Rect(3000,635,100,5),Rect(3500,635,100,5),Rect(3250,570,100,5),Rect(3010,500,80,5),Rect(3510,500,80,5)] # rects for platforms
+numBandages=3
+bandages = [Rect(1032,463,35,35),Rect(2032,463,35,35),Rect(3032,463,35,35)]
+
+numEnergy=3
+energies = [Rect(1532,463,35,35),Rect(2532,463,35,35),Rect(3532,463,35,35)]
 
 def menu(): # function for the menu screen
     global music_List, arialFont
@@ -179,7 +191,7 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
                 rapid = 0
                 VX = 10
                 VY1 = 0
-                bullets.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX,VY1])
+                bullets.append([(BATMAN[X] + offset) + 50,BATMAN[Y]+20,VX,VY1])
         elif Dir == -1:
             if rapid < 10:
                 rapid+=1
@@ -187,7 +199,7 @@ def moveBatman(BATMAN): # This function deals with all of batman's movements
                 rapid = 0
                 VX1 = -10
                 VY2 = 0
-                bullets2.append([(BATMAN[X] + offset),BATMAN[Y]+20,VX1,VY2])
+                bullets2.append([(BATMAN[X] + offset)+ 2,BATMAN[Y]+20,VX1,VY2])
 
 
     BATMAN[Y]+=BATMAN[VY]     # add current speed to Y
@@ -296,7 +308,7 @@ def move_Iron(Iron_man):
 
 def drawscene(screen,BATMAN,level):
 
-    global LEVEL1back, LEVEL2back, LEVEL3back, offset, batmobilepic, frame, move, frame2, move2, frame3, move3, FLASH, Flashrect, aliensRect, batRect, aliens, Iron_man, IronRect, move4, frame4
+    global LEVEL1back, LEVEL2back, LEVEL3back, offset, batmobilepic, frame, move, frame2, move2, frame3, move3, FLASH, Flashrect, aliensRect, batRect, aliens, Iron_man, IronRect, move4, frame4, Diff, HEALTH, HEALTH_Constant, heal, Energy, energy
     offset = 540 - BATMAN[X]
     if level == "1":
         screen.blit(LEVEL1back,(offset,0))
@@ -312,12 +324,42 @@ def drawscene(screen,BATMAN,level):
     elif level == "3":
         screen.blit(LEVEL3back,(offset,0))
 
+    for pl in plats:
+        p = pl.move(offset,0) #move horizentally only
+        draw.rect(screen,(100,110,230),p)
+
+    for m in range(numBandages):
+        for ba in bandages:
+            b = ba.move(offset,0) #move horizentally only
+    
+            screen.blit(bandage,b)
+            draw.rect(screen,YELLOW,b,1)
+            if b.colliderect(batRect): #and HEALTH < HEALTH_Constant:
+                if HEALTH < HEALTH_Constant:
+                    HEALTH = HEALTH_Constant
+                    heal = 400
+                    bandages[m].top = 1500
+
+
+    for m in range(numEnergy):
+        for en in energies:
+            e = en.move(offset,0) #move horizentally only
+    
+            screen.blit(energyPic,e)
+            draw.rect(screen,YELLOW,e,1)
+            if e.colliderect(batRect):# and HEALTH < HEALTH_Constant:
+                if Energy < Energy_Constant:
+                    Energy = Energy_Constant
+                    energy = 215
+                    energies[m].top = 1500
+
     draw.rect(screen,(130, 73, 0),(0,705,4050,15))
     
     ###### Blitting batman
-    pic = pics[move][int(frame)]
-    batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)      
-    draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],40,70),1)
+    pic_1 = pics[move][int(frame)]
+    pic = transform.scale(pic_1, (62,62))
+    batRect = Rect((BATMAN[X] + offset),BATMAN[Y],62,62)      
+    draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],62,62),1)
     draw.rect(screen,LightBLue,batRect,2)
     screen.blit(pic, (540,BATMAN[Y]))
     
@@ -393,7 +435,17 @@ def moveAliens(aliensRect):
             frame2 = 1
     elif newMove2 != -1:     # a move was selected
         move2 = newMove2      # make that our current move
-        frame2 = 1  
+        frame2 = 1 
+
+def checkCollide(BATMAN,plats):
+    batRect = Rect(BATMAN[X],BATMAN[Y],62,62)
+    for p in plats:
+        if batRect.colliderect(p):
+                #falling down 
+            if BATMAN[VY]>0 and batRect.move(0,-BATMAN[VY]).colliderect(p)==False:
+                BATMAN[ONGROUND]=True
+                BATMAN[VY] = 0
+                BATMAN[Y] = p.y - 62 #size of player 
 
 def Game():
     mixer.music.stop()
@@ -405,7 +457,7 @@ def Game():
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
     while running:
-        print(dead_counter,len(aliensRect),enemy,Dir)
+        print(dead_counter,len(aliensRect),enemy,Dir, HEALTH, heal, Diff)
         for evnt in event.get():          
             if evnt.type == QUIT:
                 running = False
@@ -498,7 +550,12 @@ def Game():
             Energy = 100
             fill[0] = 0
             dead_counter = 0
+            bandages=[]
+            energies=[]
+            bandages = [Rect(1032,468,35,35),Rect(2032,468,35,35),Rect(3032,468,35,35)]
+            energies = [Rect(1532,468,35,35),Rect(2532,468,35,35),Rect(3532,468,35,35)]
             return "game2"
+        checkCollide(BATMAN,plats)
         moveBatman(BATMAN)
         moveAliens(aliensRect)
         move_Flash(FLASH)
