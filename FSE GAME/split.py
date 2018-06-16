@@ -1,6 +1,6 @@
 from pygame import *
 init()
-BASE = "Shoot/Shoot"
+BASE = "ThanosPunchLeft/ThanosPunchLeft"
 pic1 = image.load(BASE+".png").convert(32,SRCALPHA)
 
 wid,hi = pic1.get_size()
