@@ -1,4 +1,5 @@
 #FSE.py
+## BY: USMAN FAROOQI AND YOUSSEF ELSAFADI
 from pygame import * # importing pygame
 from datetime import datetime
 from math import * # importing math 
@@ -69,7 +70,6 @@ Dir = 1 # this is the direction used in bullets and bullets2 list
 EDir = -1 # this is the direction of the enemy boss
 Count = 0 #3 this is a counter variable that makes it so boss cant spam moves
 BossHealth = [200, 400, 800, 1000] ## list of all the boss health
-BossHealth_constant = [200, 400, 800, 1000] ## list of all the boss healths used to divide with list above to get percent
 bossHeal = -400 ## this is the width of the boss health bar negative due to it being on the right side of the screen
 ############### POSITION OF BOSS'S #########################
 FLASH = [4050,650,0,True]
@@ -279,12 +279,12 @@ def move_Flash(FLASH): ## this is the movement for flash
         if (BATMAN[X]) < FLASH[X] and FLASH[X] > 540 and not Flashrect.colliderect(batRect): ## checking if batman x is less than flash's X and if there is no collision
             newMove3 = LEFT
             EDir = -1
-            FLASH[X] -=13 ## moving 13 pixels to the left 
+            FLASH[X] -=12 ## moving 13 pixels to the left 
 
         elif (BATMAN[X]) > FLASH[X] and FLASH[X] < 4050 and not Flashrect.colliderect(batRect): ## checking if batman X is greater than flash's and there is no collision
             newMove3 = RIGHT
             EDir = 1
-            FLASH[X] +=13 ## moving 13 pixels to the right
+            FLASH[X] +=12 ## moving 13 pixels to the right
 
         elif Flashrect.colliderect(batRect) and EDir == -1: ## checking if flash collides with batman with a -1 direction (left)
             newMove3 = Punchleft ## move is punch 
@@ -521,7 +521,6 @@ def drawscene(screen,BATMAN,level): ## THIS IS THE DRAW SCREEN
             b = ba.move(offset,0) #move horizentally only
     
             screen.blit(bandage,b)
-            draw.rect(screen,YELLOW,b,1)
             if b.colliderect(batRect): #and HEALTH < HEALTH_Constant:
                 if HEALTH < HEALTH_Constant: ## IF HEALTH IS LESS THAN THE CONSTANT HEALTH WHICH STAYS THE SAME
                     HEALTH = HEALTH_Constant # MAKE HEALTH FULL
@@ -532,20 +531,15 @@ def drawscene(screen,BATMAN,level): ## THIS IS THE DRAW SCREEN
         for en in energies:
             e = en.move(offset,0) #move horizentally only
             screen.blit(energyPic,e)
-            draw.rect(screen,YELLOW,e,1)
             if e.colliderect(batRect):# and HEALTH < HEALTH_Constant:
                 if Energy < 100:
                     Energy = 100
                     energy = 225
                 energies[m].top = 1500
-
-    draw.rect(screen,(130, 73, 0),(0,705,4050,15))
     
     ###### Blitting batman
     pic = pics[move][int(frame)]
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)      
-    draw.rect(screen,WHITE,Rect(BATMAN[X]+offset,BATMAN[Y],40,70),1)
-    draw.rect(screen,LightBLue,batRect,2)
     screen.blit(pic, (540,BATMAN[Y]))
     
     ###### Blitting The ALiens
@@ -554,7 +548,6 @@ def drawscene(screen,BATMAN,level): ## THIS IS THE DRAW SCREEN
     for i in range(enemy):
         aliensRect[i].move(offset,0)
         screen.blit(pic2,aliensRect[i])
-        draw.rect(screen,RED,aliensRect[i],2)
 
     ################# THESE ARE THE RECTS FOR ALL THE BOSS'S
     Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70)
@@ -566,24 +559,20 @@ def drawscene(screen,BATMAN,level): ## THIS IS THE DRAW SCREEN
         pic_3 = FlashPics[move3][int(frame3)]
         pic3 = transform.scale(pic_3,(40,70))
         screen.blit(pic3,Flashrect)
-        draw.rect(screen,WHITE,Flashrect,2)
 
     elif Boss == True and level == "2": # IF LEVEL IS 2 AND BOSS TRUE BLIT IRONMAN
         pic_4 = IronPics[move4][int(frame4)]
         pic4 = transform.scale(pic_4,(36,70))
         screen.blit(pic4,IronRect)
-        draw.rect(screen,WHITE,IronRect,2)
 
     elif Boss == True and level == "3": # IF LEVEL 3 AND BOSS TRUE THEN BLIT IRONMAN
         pic_5 = SuperPics[move5][int(frame5)]
         pic5 = transform.scale(pic_5,(36,70))
         screen.blit(pic5,SuperRect)
-        draw.rect(screen,WHITE,SuperRect,2)
 
     elif Boss == True and level == "4": # IF LEVEL 4 AND BOSS TRUE THEN BLUT THANOS
         pic6 = ThanosPics[move6][int(frame6)]
         screen.blit(pic6,ThanosRect)
-        draw.rect(screen,WHITE,ThanosRect,2)
 ##################### THE CODE BELOW IS MOVEMENT FOR THE BULLETS ###############
     for b in bullets[:]: #CHECK FOR EACH BULLET
         b[0]+=b[2]
@@ -627,7 +616,7 @@ def Game(): # THIS IS LEVEL 1 OF THE GAME
     mixer.music.play(-1)
     running = True
     myClock = time.Clock()
-    global aliens,dead_counter, batRect, aliensRect, FLASH, Count, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, BossHealth, bossHeal, BossHealth_constant, boss, XP, Flashrect, BATMAN, HEALTH, heal, heal2, Energy, energy, HEALTH_Constant, fill, enemy, Flashrect, numBandages, numEnergy, bandages, energies
+    global aliens,dead_counter, batRect, aliensRect, FLASH, Count, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, BossHealth, bossHeal, boss, XP, Flashrect, BATMAN, HEALTH, heal, heal2, Energy, energy, HEALTH_Constant, fill, enemy, Flashrect, numBandages, numEnergy, bandages, energies
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70) # MAKING THE BAT RECT
     Flashrect = Rect((FLASH[X] + offset),FLASH[Y],40,70) # MAKING THE FLASH RECT
     while running:
@@ -652,17 +641,18 @@ def Game(): # THIS IS LEVEL 1 OF THE GAME
                 Count = 0
 
             if  keys[K_b] and batRect.colliderect(aliensRect[m]) and Energy > 0: # IF THE B BUTTON IS PUSHED
-                EhealthList[m] -= 20 # SUBTRACT 20 FROM THE ALIENS HEALTH LIST
+                EhealthList[m] -= 100 # SUBTRACT 100 FROM THE ALIENS HEALTH LIST
                 ehealList[m] = ehealList[m] * (EhealthList[m]/100) # TAKE PERCENTAGE AND MULTIPLY BY THE WIDTH
                 Energy -= 25 # REDUCE THE AMOUNT OF ENERGY SO YOU CANT SPAM THE MOVE
                 energy = energy * (Energy/100)
                 if EhealthList[m] <=0:
                     dead_counter += 1 # INCREASE THE AMOUNT OF DEAD ALIENS BY 1
+                    aliensRect[m].top = 1500 ## SEND THE ALIEN TO DIFFERENT y
                     XP +=100
                 ### SAME FORMAT WITH ALIENS
             if keys[K_b] and Boss == True and batRect.colliderect(Flashrect) and Energy > 0:
-                BossHealth[boss] -=10 ## TAKING THE BOSS INDEX 
-                bossHeal = bossHeal * (BossHealth[boss] / BossHealth_constant[boss])
+                BossHealth[boss] -=50 ## TAKING THE BOSS INDEX 
+                bossHeal += 100
                 Energy -= 25
                 energy = energy * (Energy/100)
 
@@ -674,12 +664,13 @@ def Game(): # THIS IS LEVEL 1 OF THE GAME
                     ehealList[m] = ehealList[m] * (EhealthList[m]/100)
                     if EhealthList[m] <= 0:
                         dead_counter += 1 ## INCREASE AMOUNT OF ALIENS DEAD
+                        aliensRect[m].top = 1500 ## SEND THE ALIEN TO DIFFERENT y
                         XP += 100
                 if Boss == True: ## IF BOSS IS TRUE
                     if r.colliderect(Flashrect): # IF THERE IS A COLLISION WITH FLASH
                         del bullets[bullets.index(i)] # DELETE BULLET
                         BossHealth[boss] -=10 # REDUCE THE HEALTH
-                        bossHeal = bossHeal * (BossHealth[boss] / BossHealth_constant[boss])
+                        bossHeal += 20
 
             ################ SAME FORMAT AS ABOVE JUST FOR LEFT SHOOTING ######################
             for i in bullets2:
@@ -690,15 +681,15 @@ def Game(): # THIS IS LEVEL 1 OF THE GAME
                     ehealList[m] = ehealList[m] * (EhealthList[m]/100)
                     if EhealthList[m] <= 0:
                         dead_counter += 1
+                        aliensRect[m].top = 1500 ## SEND THE ALIEN TO DIFFERENT y
                         XP += 100
 
                 if Boss == True:
                     if c.colliderect(Flashrect):
                         del bullets2[bullets2.index(i)]
-                        BossHealth[boss] -=100
-                        bossHeal = bossHeal * (BossHealth[boss] / BossHealth_constant[boss])
-            if EhealthList[m] == 0: ### IF THE HEALTH OF THE ENEMY IS 0
-                aliensRect[m].top = 1500 ## SEND THE ALIEN TO DIFFERENT y
+                        BossHealth[boss] -=10
+                        bossHeal += 20
+
             if dead_counter == len(aliensRect): # IF THE AMIUNT OF DEAD ALIENS = THE AMOUNT OF ALIENS
                 Boss = True ## BOSS IS TRUE - SPAWN IN THE BOSS
             if batRect.colliderect(aliensRect[m]): # F BATMAN COLLIDES WITH ALIENN 
@@ -754,7 +745,7 @@ def Game2():
     mixer.music.play(-1)
     myClock = time.Clock()
     running = True
-    global aliens,dead_counter, batRect, aliensRect, Count, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, IronRect, Iron_man, Boss_health, bossHeal, BossHealth_constant, boss, Energy, BATMAN, energy, enemy, numBandages, numEnergy, bandages, energies
+    global aliens,dead_counter, batRect, aliensRect, Count, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, IronRect, Iron_man, Boss_health, bossHeal, boss, Energy, BATMAN, energy, enemy, numBandages, numEnergy, bandages, energies
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     while running:
         for evnt in event.get():          
@@ -776,7 +767,7 @@ def Game2():
                 Count = 0
 
             if  keys[K_b] and batRect.colliderect(aliensRect[m]) and Energy > 0:
-                EhealthList[m] -= 20
+                EhealthList[m] -= 100
                 ehealList[m] = ehealList[m] * (EhealthList[m]/100)
                 Energy -= 25
                 energy = energy * (Energy/100)
@@ -787,7 +778,7 @@ def Game2():
 
             if keys[K_b] and Boss == True and batRect.colliderect(IronRect) and Energy > 0:
                 BossHealth[boss] -=15
-                bossHeal = bossHeal * (BossHealth[boss]/BossHealth_constant[boss])
+                bossHeal += 15
                 Energy -= 25
                 energy = energy * (Energy/100)
 
@@ -806,7 +797,7 @@ def Game2():
                     if r.colliderect(IronRect):
                         del bullets[bullets.index(i)]
                         BossHealth[boss] -=15
-                        bossHeal = bossHeal * (BossHealth[boss]/BossHealth_constant[boss])
+                        bossHeal += 15
 
             for i in bullets2:
                 c = Rect(i)
@@ -823,7 +814,7 @@ def Game2():
                     if c.colliderect(IronRect):
                         del bullets2[bullets2.index(i)]
                         BossHealth[boss] -=15
-                        bossHeal = bossHeal * (BossHealth[boss]/BossHealth_constant[boss])
+                        bossHeal += 15
 
             if dead_counter == len(aliensRect):
                 Boss = True
@@ -879,7 +870,7 @@ def Game3():
     mixer.music.play(-1)
     myClock = time.Clock()
     running = True
-    global aliens,dead_counter, batRect, aliensRect, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, Energy, BATMAN, enemy, energy, SuperRect, Super_man, bossHeal, BossHealth, BossHealth_constant, boss, Count, numBandages, numEnergy, bandages, energies
+    global aliens,dead_counter, batRect, aliensRect, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, Energy, BATMAN, enemy, energy, SuperRect, Super_man, bossHeal, BossHealth, boss, Count, numBandages, numEnergy, bandages, energies
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     while running:
         for evnt in event.get():          
@@ -901,7 +892,7 @@ def Game3():
                 Count = 0
 
             if  keys[K_b] and batRect.colliderect(aliensRect[m]) and Energy > 0:
-                EhealthList[m] -= 20
+                EhealthList[m] -= 100
                 ehealList[m] = ehealList[m] * (EhealthList[m]/100)
                 Energy -= 25
                 energy = energy * (Energy/100)
@@ -911,8 +902,8 @@ def Game3():
                     XP +=100
 
             if keys[K_b] and Boss == True and batRect.colliderect(SuperRect) and Energy > 0:
-                BossHealth[boss] -=100
-                bossHeal = bossHeal * (BossHealth[boss]/BossHealth_constant[boss])
+                BossHealth[boss] -=20
+                bossHeal += 10
                 Energy -= 25
                 energy = energy * (Energy/100)
 
@@ -931,7 +922,7 @@ def Game3():
                     if r.colliderect(SuperRect):
                         del bullets[bullets.index(i)]
                         BossHealth[boss] -=13
-                        bossHeal = bossHeal * (BossHealth[boss]/BossHealth_constant[boss])
+                        bossHeal += 10
 
             for i in bullets2:
                 c = Rect(i)
@@ -948,7 +939,7 @@ def Game3():
                     if c.colliderect(SuperRect):
                         del bullets2[bullets2.index(i)]
                         BossHealth[boss] -=13
-                        bossHeal = bossHeal * (BossHealth[boss]/BossHealth_constant[boss])
+                        bossHeal += 10
 
             if EhealthList[m] == 0:
                 aliensRect[m].top = 1500
@@ -1005,7 +996,7 @@ def Game4():
     mixer.music.play(-1)
     myClock = time.Clock()
     running = True
-    global aliens,dead_counter, batRect, aliensRect,Count, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, Energy, BATMAN, enemy, energy, bossHeal, BossHealth, BossHealth_constant, boss,  bandages, energies, numEnergy, numBandages
+    global aliens,dead_counter, batRect, aliensRect,Count, bullets, bullets2, bullet, bullet1, EhealthList, ehealList, Boss, XP, HEALTH, heal, HEALTH_Constant, Energy, BATMAN, enemy, energy, bossHeal, BossHealth, boss,  bandages, energies, numEnergy, numBandages
     batRect = Rect((BATMAN[X] + offset),BATMAN[Y],40,70)
     while running:  
         for evnt in event.get():          
@@ -1032,6 +1023,7 @@ def Game4():
                 energy = energy * (Energy/100)
                 if EhealthList[m] <=0:
                     dead_counter += 1
+                    aliensRect[m].top = 1500
                     XP +=100
 
             if keys[K_b] and Boss == True and batRect.colliderect(ThanosRect) and Energy > 0:
@@ -1048,6 +1040,7 @@ def Game4():
                     ehealList[m] = ehealList[m] * (EhealthList[m]/100)
                     if EhealthList[m] <= 0:
                         dead_counter += 1
+                        aliensRect[m].top = 1500
                         XP += 100
 
                 if Boss == True:
@@ -1064,6 +1057,7 @@ def Game4():
                     ehealList[m] = ehealList[m] * (EhealthList[m]/100)
                     if EhealthList[m] <= 0:
                         dead_counter += 1
+                        aliensRect[m].top = 1500
                         XP += 100
 
                 if Boss == True:
@@ -1072,18 +1066,17 @@ def Game4():
                         BossHealth[boss] -=10
                         bossHeal += 4
 
-            if EhealthList[m] == 0:
-                aliensRect[m].top = 1500
-            if dead_counter == len(aliensRect):
-                Boss = True
             if batRect.colliderect(aliensRect[m]):
                 pass
+        if dead_counter == len(aliensRect):
+            Boss = True
 
-            if Boss == True:
-                if BossHealth[boss] <= 0:
-                    Thanos[Y] = 1500
-                    XP += 10000
-                    Boss = False
+        if Boss == True:
+            if BossHealth[boss] <= 0:
+                Thanos[Y] = 1500
+                XP += 10000
+                Boss = False
+                    
         if BossHealth[boss] <=0 and Boss == False: # IF THE BOSS IS DEAD
             return "credits" # GAME OVER
 
