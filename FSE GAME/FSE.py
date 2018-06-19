@@ -512,6 +512,8 @@ def drawscene(screen,BATMAN,level): ## THIS IS THE DRAW SCREEN
     elif level == "4": # IF LEVEL IS 4 
         screen.blit(LEVEL4back,(offset,0)) # BLIT THE 4TH LEVEL BACKGROUND
 
+    draw.rect(screen,(130, 73, 0),(0,705,4050,15)) # making a platform for player to stand on
+
     for pl in plats: ## MOVING THE PLATS WITH OFFSET 
         p = pl.move(offset,0) #move horizentally only
         draw.rect(screen,(100,110,230),p)
